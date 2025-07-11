@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DependencyInjection;
+namespace Zeggriim\YousignWebhookBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;

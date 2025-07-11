@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Zeggriim\YousignWebhookBundle\Webhook;
 
+use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\PayloadConverterInterface;
-use Symfony\Component\RemoteEvent\RemoteEvent;
 use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
 
 final class YousignRequestParser implements PayloadConverterInterface
 {
-    public function __construct(private readonly string $secret)
-    {
-    }
+    public function __construct(private readonly string $secret){}
 
     public function convert(array $payload): YousignRemoteEvent
     {
@@ -31,7 +29,7 @@ final class YousignRequestParser implements PayloadConverterInterface
 
         $executedAt = null;
         if (isset($data['executed_at'])) {
-            $executedAt = new \DateTimeImmutable($data['executed_at']);
+            $executedAt = new DateTimeImmutable($data['executed_at']);
         }
 
         return new YousignRemoteEvent(
