@@ -1,18 +1,15 @@
 services:
-    __default:
+    _default:
         autowire: true
         autoconfigure: true
 
     Zeggriim\YousignWebhookBundle\:
-        resource: '../../'
+        resource: '../../*'
         exclude: '../../{DependencyInjection,Resources,Tests}'
 
     Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser:
         arguments:
-            $secret: '%yousign_webhook.secret%'
+            $secret: '%yousign.webhook.secret%'
 
     Zeggriim\YousignWebhookBundle\Controller\YousignWebhookController:
         tags: ['controller.service_arguments']
-
-    Zeggriim\YousignWebhookBundle\Consumer\YousignEventConsumer:
-        tags: ['messenger.message_handler']
