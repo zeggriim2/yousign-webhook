@@ -8,27 +8,45 @@ use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\PayloadConverterInterface;
+use Webmozart\Assert\Assert;
 use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
+
+use function is_array;
+use function is_string;
 
 final class YousignRequestParser implements PayloadConverterInterface
 {
-    public function __construct(private readonly string $secret){}
+    public function __construct(private readonly string $secret)
+    {
+    }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function convert(array $payload): YousignRemoteEvent
     {
-        if (!isset($payload['event_name'], $payload['data'])) {
-            throw new ParseException('Missing required fields in Yousign webhook payload');
+        $eventName = $payload['event_name'] ?? null;
+        $data = $payload['data'] ?? null;
+
+        if (!is_string($eventName) || !is_array($data)) {
+            throw new ParseException('Missing or invalid required fields in Yousign webhook payload');
         }
 
-        $data = $payload['data'];
-        $eventName = $payload['event_name'];
+        $signatureRequest = $data['signature_request'] ?? null;
 
-        // Extraction des données selon le type d'événement
-        $signatureRequestId = $data['signature_request']['id'] ?? $data['id'] ?? '';
-        $status = $data['status'] ?? $data['signature_request']['status'] ?? 'unknown';
+        if (!is_array($signatureRequest)) {
+            throw new ParseException('Missing or invalid "signature_request" structure');
+        }
+
+        $signatureRequestId = $signatureRequest['id'] ?? null;
+        $status = $signatureRequest['status'] ?? null;
+
+        Assert::string($signatureRequestId);
+        Assert::string($status);
 
         $executedAt = null;
         if (isset($data['executed_at'])) {
+            Assert::string($data['executed_at']);
             $executedAt = new DateTimeImmutable($data['executed_at']);
         }
 
@@ -46,7 +64,7 @@ final class YousignRequestParser implements PayloadConverterInterface
     {
         $expectedSignature = $request->headers->get('X-Yousign-Signature-256') ?? null;
 
-        if (null == $expectedSignature) {
+        if (null === $expectedSignature) {
             return false;
         }
 

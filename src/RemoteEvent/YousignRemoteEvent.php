@@ -12,15 +12,17 @@ use Symfony\Component\RemoteEvent\RemoteEvent;
  */
 final class YousignRemoteEvent extends RemoteEvent
 {
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function __construct(
-        string                              $name,
-        string                              $id,
-        array                               $payload,
+        string $name,
+        string $id,
+        array $payload,
         private readonly string $signatureRequestId,
         private readonly string $status,
-        private readonly ?DateTimeImmutable $executedAt = null
-    )
-    {
+        private readonly ?DateTimeImmutable $executedAt = null,
+    ) {
         parent::__construct($name, $id, $payload);
     }
 

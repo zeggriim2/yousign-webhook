@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zeggriim\YousignWebhookBundle\Exception;
 
 use Throwable;
@@ -9,5 +11,4 @@ use Throwable;
  */
 interface ExceptionInterface extends Throwable
 {
-
 }
