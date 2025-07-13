@@ -47,8 +47,7 @@ final class YousignWebhookController
 
             $this->logger->info('Yousign webhook processed successfully', [
                 'event_name' => $remoteEvent->getName(),
-                'signature_request_id' => $remoteEvent->getSignatureRequestId(),
-                'status' => $remoteEvent->getStatus(),
+                'signature_id' => $remoteEvent->getId(),
             ]);
 
             return new Response('', Response::HTTP_ACCEPTED);
