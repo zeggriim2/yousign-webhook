@@ -26,37 +26,34 @@ final class YousignRequestParser implements PayloadConverterInterface
     public function convert(array $payload): YousignRemoteEvent
     {
         $eventName = $payload['event_name'] ?? null;
+        $eventId = $payload['event_id'] ?? null;
         $data = $payload['data'] ?? null;
 
-        if (!is_string($eventName) || !is_array($data)) {
+        if (!is_string($eventId) || !is_string($eventName) || !is_array($data)) {
             throw new ParseException('Missing or invalid required fields in Yousign webhook payload');
         }
 
-        $signatureRequest = $data['signature_request'] ?? null;
+        $subscriptionId = $payload['subscription_id'] ?? null;
+        $subscriptionDescription = $payload['subscription_description'] ?? null;
 
-        if (!is_array($signatureRequest)) {
-            throw new ParseException('Missing or invalid "signature_request" structure');
-        }
+        Assert::string($subscriptionId);
+        Assert::string($subscriptionDescription);
 
-        $signatureRequestId = $signatureRequest['id'] ?? null;
-        $status = $signatureRequest['status'] ?? null;
+        Assert::keyExists($payload, 'event_time');
+        Assert::numeric($payload['event_time']);
 
-        Assert::string($signatureRequestId);
-        Assert::string($status);
+        $eventTime = (int) $payload['event_time'];
 
-        $executedAt = null;
-        if (isset($data['executed_at'])) {
-            Assert::string($data['executed_at']);
-            $executedAt = new DateTimeImmutable($data['executed_at']);
-        }
+        $datetimeEventTime = new DateTimeImmutable();
+        $datetimeEventTime = $datetimeEventTime->setTimestamp($eventTime);
 
         return new YousignRemoteEvent(
             $eventName,
-            $signatureRequestId,
+            $eventId,
             $payload,
-            $signatureRequestId,
-            $status,
-            $executedAt
+            $subscriptionId,
+            $subscriptionDescription,
+            $datetimeEventTime
         );
     }
 

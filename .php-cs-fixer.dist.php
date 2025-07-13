@@ -11,7 +11,7 @@ return (new PhpCsFixer\Config())
     ->setRules([
         '@PhpCsFixer' => true,
         '@PhpCsFixer:risky' => true,
-        '@PSR2' => true,
+        '@PSR12' => true,
         '@Symfony' => true,
         'declare_strict_types' => true,
         'global_namespace_import' => false,

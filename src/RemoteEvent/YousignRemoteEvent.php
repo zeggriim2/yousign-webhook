@@ -19,25 +19,25 @@ final class YousignRemoteEvent extends RemoteEvent
         string $name,
         string $id,
         array $payload,
-        private readonly string $signatureRequestId,
-        private readonly string $status,
-        private readonly ?DateTimeImmutable $executedAt = null,
+        private readonly string $subscriptionId,
+        private readonly string $subscriptionDescription,
+        private readonly DateTimeImmutable $eventTime,
     ) {
         parent::__construct($name, $id, $payload);
     }
 
-    public function getSignatureRequestId(): string
+    public function getSubscriptionId(): string
     {
-        return $this->signatureRequestId;
+        return $this->subscriptionId;
     }
 
-    public function getStatus(): string
+    public function getSubscriptionDescription(): string
     {
-        return $this->status;
+        return $this->subscriptionDescription;
     }
 
-    public function getExecutedAt(): ?DateTimeImmutable
+    public function getEventTime(): DateTimeImmutable
     {
-        return $this->executedAt;
+        return $this->eventTime;
     }
 }
