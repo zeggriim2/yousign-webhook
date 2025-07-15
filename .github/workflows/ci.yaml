@@ -9,7 +9,7 @@ on:
 
 jobs:
     checks:
-        name: PHPStan & PHP CS Fixer
+        name: PHPStan, PHP CS Fixer & PHPUnit
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
@@ -18,7 +18,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.3'
                   coverage: none
 
             - name: Install dependencies
@@ -29,3 +29,6 @@ jobs:
 
             - name: Run PHP CS Fixer
               run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
+
+            - name: Run PHPUnit
+              run: ./vendor/bin/phpunit --no-coverage
