@@ -21,6 +21,15 @@ return [
 
 ## 🔀 Configuration des routes
 
+Ajouter la cléf secret fourni par Yousign dans l'admin :
+
+```yaml
+# config/packages/yousign_webhook.yaml
+yousign_webhook:
+    secret: "%env(SECRET_YOUSIGN)%"
+```
+
+
 Importez les routes exposées par le bundle dans votre fichier config/routes.yaml :
 
 ```yaml
