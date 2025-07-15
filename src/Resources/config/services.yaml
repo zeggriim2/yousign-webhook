@@ -7,7 +7,7 @@ services:
         resource: '../../*'
         exclude: '../../{DependencyInjection,Resources,Tests}'
 
-    Zeggriim\YousignWebhookBundle\Webhook\Security\YousignSignatureVerifier:
+    Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier:
         arguments:
             $secret: '%yousign.webhook.secret%'
 
