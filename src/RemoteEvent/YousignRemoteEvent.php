@@ -21,6 +21,7 @@ final class YousignRemoteEvent extends RemoteEvent
         array $payload,
         private readonly string $subscriptionId,
         private readonly string $subscriptionDescription,
+        private readonly bool $sandbox,
         private readonly DateTimeImmutable $eventTime,
     ) {
         parent::__construct($name, $id, $payload);
@@ -39,5 +40,10 @@ final class YousignRemoteEvent extends RemoteEvent
     public function getEventTime(): DateTimeImmutable
     {
         return $this->eventTime;
+    }
+
+    public function isSandbox(): bool
+    {
+        return $this->sandbox;
     }
 }
