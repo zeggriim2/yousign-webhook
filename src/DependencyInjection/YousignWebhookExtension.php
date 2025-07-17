@@ -19,9 +19,11 @@ final class YousignWebhookExtension extends Extension
 
         Assert::string($config['secret']);
         Assert::string($config['endpoint']);
+        Assert::string($config['type']);
 
         $container->setParameter('yousign.webhook.secret', $config['secret']);
         $container->setParameter('yousign.webhook.endpoint', $config['endpoint']);
+        $container->setParameter('yousign.webhook.type', $config['type']);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');

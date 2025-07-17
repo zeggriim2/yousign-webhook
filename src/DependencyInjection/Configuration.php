@@ -24,6 +24,10 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue('/webhook/yousign')
                     ->info('Webhook endpoint path')
                 ->end()
+                ->scalarNode('type')
+                    ->defaultValue('yousign')
+                    ->info('Webhook type')
+                ->end()
             ->end();
 
         return $treeBuilder;
