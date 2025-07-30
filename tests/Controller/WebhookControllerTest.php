@@ -34,7 +34,7 @@ final class WebhookControllerTest extends TestCase
     public function testEmptyPayload(): void
     {
         $secret = 'keySecret';
-        $hashMac = hash_hmac('sha256', '', $secret);
+        $hashMac = sprintf('sha256=%s', hash_hmac('sha256', '', $secret));
         $request = new Request();
         $request->headers->set('X-Yousign-Signature-256', $hashMac);
 
@@ -52,9 +52,6 @@ final class WebhookControllerTest extends TestCase
 
     public function testParserAcceptsPayloadAndReturnsSingleEvent(): void
     {
-        $secret = 'keySecret';
-        $hashMac = hash_hmac('sha256', '', $secret);
-
         $payload = json_encode([
             'event_id'=> "b6c63685-c556-4a30-8fe9-b6f2b187d936",
             'event_name'=> 'signature_request.activated',
@@ -69,6 +66,10 @@ final class WebhookControllerTest extends TestCase
                 ]
             ]
         ]);
+
+        $secret = 'keySecret';
+        $hashMac = sprintf('sha256=%s', hash_hmac('sha256', $payload, $secret));
+
         $request = new Request(content: $payload);
         $request->headers->set('X-Yousign-Signature-256', $hashMac);
         $request->headers->set('Content-Type', 'application/json');
