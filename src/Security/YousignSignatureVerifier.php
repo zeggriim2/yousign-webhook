@@ -20,7 +20,7 @@ final class YousignSignatureVerifier
         $expectedSignature = $request->headers->get('X-Yousign-Signature-256') ?? null;
 
         if (null === $expectedSignature) {
-            return true;
+            return false;
         }
 
         $digest = hash_hmac('sha256', $request->getContent(), $this->secret);

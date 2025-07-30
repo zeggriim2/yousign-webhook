@@ -28,7 +28,7 @@ final class YousignWebhookController
     public function handle(Request $request): Response
     {
         try {
-            if ($this->signatureVerifier->verifySignature($request)) {
+            if (!$this->signatureVerifier->verifySignature($request)) {
                 return new Response(
                     'Invalid signature',
                     Response::HTTP_UNAUTHORIZED,
