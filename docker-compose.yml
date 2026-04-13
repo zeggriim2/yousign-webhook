@@ -1,0 +1,10 @@
+services:
+  php:
+    build: .
+    volumes:
+      - .:/app
+      - composer-cache:/root/.composer/cache
+    working_dir: /app
+
+volumes:
+  composer-cache:
