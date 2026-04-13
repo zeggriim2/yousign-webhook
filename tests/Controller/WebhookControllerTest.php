@@ -22,7 +22,7 @@ final class WebhookControllerTest extends TestCase
         $controller = new YousignWebhookController(
             new YousignConverter(),
             new YousignSignatureVerifier('test'),
-            $this->createMock(MessageBusInterface::class),
+            $this->createStub(MessageBusInterface::class),
         );
 
         $response = $controller->handle(new Request());
@@ -41,7 +41,7 @@ final class WebhookControllerTest extends TestCase
         $controller = new YousignWebhookController(
             new YousignConverter(),
             new YousignSignatureVerifier($secret),
-            $this->createMock(MessageBusInterface::class),
+            $this->createStub(MessageBusInterface::class),
         );
 
         $response = $controller->handle($request);

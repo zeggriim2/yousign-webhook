@@ -6,6 +6,7 @@ namespace Zeggriim\YousignWebhookBundle\RemoteEvent;
 
 use DateTimeImmutable;
 use Symfony\Component\RemoteEvent\RemoteEvent;
+use Zeggriim\YousignWebhookBundle\Enum\YousignEventName;
 
 /**
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
@@ -45,5 +46,10 @@ final class YousignRemoteEvent extends RemoteEvent
     public function isSandbox(): bool
     {
         return $this->sandbox;
+    }
+
+    public function getYousignEventName(): ?YousignEventName
+    {
+        return YousignEventName::tryFrom($this->getName());
     }
 }
