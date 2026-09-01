@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "monitoring.natural_person.canceled",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "monitoring": {
+      "id": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+      "type": "natural_person",
+      "status": "canceled",
+      "updated_at": "2024-01-18T22:59:00Z"
+    }
+  }
+}

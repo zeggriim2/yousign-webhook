@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "contact.created",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "contact": {
+      "id": "b1c1a3c4-1c2b-4f2e-9a1e-5f0b1a2c3d4e",
+      "email": "jane.doe@example.com",
+      "first_name": "Jane",
+      "last_name": "Doe"
+    }
+  }
+}

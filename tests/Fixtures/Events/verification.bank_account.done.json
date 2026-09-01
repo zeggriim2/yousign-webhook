@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "verification.bank_account.done",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "verification": {
+      "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "bank_account",
+      "status": "done",
+      "created_at": "2024-01-18T22:59:00Z",
+      "external_id": "ref#1234"
+    }
+  }
+}

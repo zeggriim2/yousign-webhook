@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "document_analysis.done",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "document_analysis": {
+      "id": "8d3b1f9a-2c4e-4b7a-9f1d-0a6c5e4b3d2f",
+      "status": "done",
+      "created_at": "2024-01-18T22:59:00Z"
+    }
+  }
+}

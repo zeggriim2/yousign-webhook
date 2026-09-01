@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "user.completed",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "user": {
+      "id": "2a5e0b7c-9d3f-4a1b-8c6d-7e8f9a0b1c2d",
+      "email": "john.doe@example.com",
+      "status": "active"
+    }
+  }
+}

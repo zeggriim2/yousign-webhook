@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "event_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "event_name": "workflow_session.started",
+    "event_time": "1670855889",
+    "subscription_id": "d09f0367-d80a-309c-a2ed-7083991fc564",
+    "subscription_description": "Notifies our system when an event occurs.",
+    "sandbox": true
+  },
+  "data": {
+    "workflow_session_id": "0ef334d2-7f36-4643-8a2a-4283b4a3e4a4",
+    "status": "started"
+  }
+}
