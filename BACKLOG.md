@@ -37,6 +37,35 @@ La documentation YouTrust v3 décrit aujourd'hui :
 | Branding         | Renommage Yousign → YouTrust avec alias de rétro-compatibilité dépréciés.                   |
 | Compatibilité    | PHP 8.2+, Symfony 6.4 LTS et 7.x (abandon de 5.4 / 6.0).                                     |
 
+## État d'avancement
+
+| Ticket | Sujet                                             | État |
+| ------ | ------------------------------------------------- | ---- |
+| A1     | Payload `metadata` imbriqué + rétro-compat         | ✅   |
+| A2     | Tolerant reader                                    | ✅   |
+| A3     | Métadonnées de livraison (`X-Yousign-Retry`)       | ✅   |
+| B1     | Vérification de signature durcie                   | ✅   |
+| B2     | Gestion d'erreurs et journalisation                | ✅   |
+| B3     | Idempotence sur `event_id`                         | ✅   |
+| B4     | Documentation de la réponse < 1 s                  | ✅   |
+| B5     | Allowlist d'IP                                     | ✅   |
+| C1     | `YouTrustRequestParser` (`symfony/webhook`)        | ✅   |
+| C2     | Dépréciation du contrôleur maison                  | ✅   |
+| C3     | Multi-abonnements                                  | ✅   |
+| C4     | Passage à `AbstractBundle`                         | ✅   |
+| D1     | Énumération des 56 événements                      | ✅   |
+| D2     | Modèles typés `SignatureRequest` / `Signer`        | ✅   |
+| D3     | Consumer avec dispatch par événement               | ✅   |
+| E1     | Fixtures JSON des 56 événements                    | ✅   |
+| E2     | Couverture unitaire et fonctionnelle               | ✅   |
+| E3     | CI matricielle                                     | ✅   |
+| E4     | Hygiène du dépôt                                   | ✅   |
+| F1     | Renommage YouTrust avec alias de BC                | ✅   |
+| F2     | Documentation + squelette de recette Flex          | ⏳   |
+
+F2 : la documentation est livrée et le squelette de recette est dans
+`docs/flex-recipe/`, il reste à le soumettre à `symfony/recipes-contrib`.
+
 ## Roadmap
 
 | Version  | Contenu                                                                  | Épics   |
