@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Enum;
+namespace Zeggriim\YouTrustWebhookBundle\Enum;
 
 /**
  * Catalogue of the webhook events documented by Yousign (YouTrust).
@@ -13,7 +13,7 @@ namespace Zeggriim\YousignWebhookBundle\Enum;
  *
  * @see https://developers.youtrust.com/docs/webhooks
  */
-enum YousignEvent: string
+enum YouTrustEvent: string
 {
     case SIGNATURE_REQUEST_ACTIVATED = 'signature_request.activated';
     case SIGNATURE_REQUEST_APPROVED = 'signature_request.approved';

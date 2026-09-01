@@ -1,0 +1,19 @@
+{
+    "bundles": {
+        "Zeggriim\\YouTrustWebhookBundle\\YouTrustWebhookBundle": ["all"]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/"
+    },
+    "env": {
+        "YOUTRUST_WEBHOOK_SECRET": ""
+    },
+    "post-install-output": [
+        "  * Déclarez votre endpoint côté YouTrust : <comment>POST https://…/webhook/yousign</comment>",
+        "  * Renseignez <comment>YOUTRUST_WEBHOOK_SECRET</comment> avec la clé de la subscription",
+        "  * Créez un consumer avec <comment>#[AsRemoteEventConsumer('yousign')]</comment>",
+        "",
+        "  Documentation : <comment>https://github.com/zeggriim/yousign-webhook</comment>"
+    ],
+    "aliases": ["youtrust-webhook", "youtrust"]
+}

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Controller;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Controller;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -13,12 +13,12 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RemoteEvent\Messenger\ConsumeRemoteEventMessage;
-use Zeggriim\YousignWebhookBundle\Controller\YousignWebhookController;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
-use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
+use Zeggriim\YouTrustWebhookBundle\Controller\YouTrustWebhookController;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustIpChecker;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustConverter;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustIdempotencyStore;
 
 /**
  * @internal
@@ -77,7 +77,7 @@ final class WebhookControllerTest extends TestCase
         $bus = $this->bus();
         $bus->expects(self::never())->method('dispatch');
 
-        $controller = $this->controller($bus, new YousignIpChecker(['57.130.41.144/28']));
+        $controller = $this->controller($bus, new YouTrustIpChecker(['57.130.41.144/28']));
         $response = $controller->handle($this->signedRequest(self::payload()));
 
         self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
@@ -92,7 +92,7 @@ final class WebhookControllerTest extends TestCase
         $request = $this->signedRequest(self::payload());
         $request->server->set('REMOTE_ADDR', '57.130.41.150');
 
-        $controller = $this->controller($bus, new YousignIpChecker(YousignIpChecker::DOCUMENTED_RANGES));
+        $controller = $this->controller($bus, new YouTrustIpChecker(YouTrustIpChecker::DOCUMENTED_RANGES));
 
         self::assertSame(Response::HTTP_ACCEPTED, $controller->handle($request)->getStatusCode());
     }
@@ -107,7 +107,7 @@ final class WebhookControllerTest extends TestCase
                 $this->assertSame('yousign', $message->getType());
 
                 $event = $message->getEvent();
-                $this->assertInstanceOf(YousignRemoteEvent::class, $event);
+                $this->assertInstanceOf(YouTrustRemoteEvent::class, $event);
                 $this->assertSame('signature_request.activated', $event->getName());
                 $this->assertSame('b6c63685-c556-4a30-8fe9-b6f2b187d936', $event->getId());
                 $this->assertSame(3, $event->getRetryCount());
@@ -119,7 +119,7 @@ final class WebhookControllerTest extends TestCase
         ;
 
         $request = $this->signedRequest(self::payload());
-        $request->headers->set(YousignRemoteEvent::RETRY_HEADER, '3');
+        $request->headers->set(YouTrustRemoteEvent::RETRY_HEADER, '3');
 
         $response = $this->controller($bus)->handle($request);
 
@@ -164,12 +164,12 @@ final class WebhookControllerTest extends TestCase
         $bus = $this->bus();
         $bus->expects(self::once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
 
-        $controller = $this->controller($bus, null, new YousignIdempotencyStore(new ArrayAdapter()));
+        $controller = $this->controller($bus, null, new YouTrustIdempotencyStore(new ArrayAdapter()));
 
         $first = $controller->handle($this->signedRequest(self::payload()));
 
         $retry = $this->signedRequest(self::payload());
-        $retry->headers->set(YousignRemoteEvent::RETRY_HEADER, '1');
+        $retry->headers->set(YouTrustRemoteEvent::RETRY_HEADER, '1');
         $second = $controller->handle($retry);
 
         self::assertSame(Response::HTTP_ACCEPTED, $first->getStatusCode());
@@ -186,12 +186,12 @@ final class WebhookControllerTest extends TestCase
 
     private function controller(
         MessageBusInterface $bus,
-        ?YousignIpChecker $ipChecker = null,
-        ?YousignIdempotencyStore $idempotencyStore = null,
-    ): YousignWebhookController {
-        return new YousignWebhookController(
-            new YousignConverter(),
-            new YousignSignatureVerifier(self::SECRET),
+        ?YouTrustIpChecker $ipChecker = null,
+        ?YouTrustIdempotencyStore $idempotencyStore = null,
+    ): YouTrustWebhookController {
+        return new YouTrustWebhookController(
+            new YouTrustConverter(),
+            new YouTrustSignatureVerifier(self::SECRET),
             $bus,
             null,
             $ipChecker,
@@ -204,7 +204,7 @@ final class WebhookControllerTest extends TestCase
         $request = new Request(content: $body);
         $request->headers->set('Content-Type', 'application/json');
         $request->headers->set(
-            YousignSignatureVerifier::SIGNATURE_HEADER,
+            YouTrustSignatureVerifier::SIGNATURE_HEADER,
             'sha256='.hash_hmac('sha256', $body, self::SECRET),
         );
 

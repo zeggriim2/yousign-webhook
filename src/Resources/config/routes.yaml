@@ -1,4 +1,4 @@
 yousign_webhook:
     path: '%yousign.webhook.endpoint%'
-    controller: Zeggriim\YousignWebhookBundle\Controller\YousignWebhookController::handle
+    controller: Zeggriim\YouTrustWebhookBundle\Controller\YouTrustWebhookController::handle
     methods: [ POST ]

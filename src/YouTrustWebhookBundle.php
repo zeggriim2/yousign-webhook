@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle;
+namespace Zeggriim\YouTrustWebhookBundle;
 
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -10,10 +10,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustIdempotencyStore;
 
-class YousignWebhookBundle extends AbstractBundle
+class YouTrustWebhookBundle extends AbstractBundle
 {
+    /**
+     * Pinned so the configuration key stays "youtrust_webhook" instead of the
+     * "you_trust_webhook" the class name would produce.
+     */
+    protected string $extensionAlias = 'youtrust_webhook';
+
     public function configure(DefinitionConfigurator $definition): void
     {
         $definition->rootNode()
@@ -78,9 +84,9 @@ class YousignWebhookBundle extends AbstractBundle
         $builder->setParameter('yousign.webhook.type', $config['type']);
         $builder->setParameter('yousign.webhook.allowed_ips', $config['allowed_ips']);
 
-        $container->import('Resources/config/services.php');
+        $container->import(__DIR__.'/Resources/config/services.php');
 
-        $store = $builder->getDefinition(YousignIdempotencyStore::class);
+        $store = $builder->getDefinition(YouTrustIdempotencyStore::class);
         $store->setArgument('$ttl', $config['idempotency']['ttl']);
 
         if ($config['idempotency']['enabled']) {
@@ -99,9 +105,9 @@ class YousignWebhookBundle extends AbstractBundle
             'zeggriim/yousign-webhook-bundle',
             '0.3',
             'The built-in Yousign webhook controller and route are deprecated and will be removed in 1.0. Configure "framework.webhook.routing" with "%s" instead, then set "yousign_webhook.legacy_controller" to false.',
-            'Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser',
+            'Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser',
         );
 
-        $container->import('Resources/config/legacy.php');
+        $container->import(__DIR__.'/Resources/config/legacy.php');
     }
 }

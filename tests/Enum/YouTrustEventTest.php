@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Enum;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Enum;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Zeggriim\YousignWebhookBundle\Enum\YousignEvent;
+use Zeggriim\YouTrustWebhookBundle\Enum\YouTrustEvent;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-final class YousignEventTest extends TestCase
+final class YouTrustEventTest extends TestCase
 {
     #[DataProvider('provideUnknownEventsResolveToNullInsteadOfThrowingCases')]
     public function testUnknownEventsResolveToNullInsteadOfThrowing(string $name): void
     {
-        self::assertNull(YousignEvent::tryFrom($name));
+        self::assertNull(YouTrustEvent::tryFrom($name));
     }
 
     /**
@@ -33,25 +33,25 @@ final class YousignEventTest extends TestCase
 
     public function testKnownEventsAreResolved(): void
     {
-        self::assertSame(YousignEvent::SIGNER_DONE, YousignEvent::tryFrom('signer.done'));
-        self::assertSame(YousignEvent::WORKFLOW_SESSION_BLOCKED, YousignEvent::tryFrom('workflow_session.blocked'));
+        self::assertSame(YouTrustEvent::SIGNER_DONE, YouTrustEvent::tryFrom('signer.done'));
+        self::assertSame(YouTrustEvent::WORKFLOW_SESSION_BLOCKED, YouTrustEvent::tryFrom('workflow_session.blocked'));
     }
 
     public function testGroupAndAction(): void
     {
-        self::assertSame('signature_request', YousignEvent::SIGNATURE_REQUEST_DONE->group());
-        self::assertSame('done', YousignEvent::SIGNATURE_REQUEST_DONE->action());
+        self::assertSame('signature_request', YouTrustEvent::SIGNATURE_REQUEST_DONE->group());
+        self::assertSame('done', YouTrustEvent::SIGNATURE_REQUEST_DONE->action());
 
-        self::assertSame('verification', YousignEvent::VERIFICATION_COMPANY_DONE->group());
-        self::assertSame('done', YousignEvent::VERIFICATION_COMPANY_DONE->action());
+        self::assertSame('verification', YouTrustEvent::VERIFICATION_COMPANY_DONE->group());
+        self::assertSame('done', YouTrustEvent::VERIFICATION_COMPANY_DONE->action());
 
-        self::assertSame('monitoring', YousignEvent::MONITORING_NATURAL_PERSON_UPDATED->group());
-        self::assertSame('updated', YousignEvent::MONITORING_NATURAL_PERSON_UPDATED->action());
+        self::assertSame('monitoring', YouTrustEvent::MONITORING_NATURAL_PERSON_UPDATED->group());
+        self::assertSame('updated', YouTrustEvent::MONITORING_NATURAL_PERSON_UPDATED->action());
     }
 
     public function testEveryCaseIsUniqueAndNamespaced(): void
     {
-        $values = array_map(static fn (YousignEvent $event): string => $event->value, YousignEvent::cases());
+        $values = array_map(static fn (YouTrustEvent $event): string => $event->value, YouTrustEvent::cases());
 
         self::assertSame($values, array_values(array_unique($values)));
 

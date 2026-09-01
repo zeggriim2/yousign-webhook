@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Security;
+namespace Zeggriim\YouTrustWebhookBundle\Security;
 
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @see https://developers.youtrust.com/docs/use-webhooks-in-your-app
  */
-final class YousignIpChecker
+final class YouTrustIpChecker
 {
     /**
      * Ranges documented by YouTrust. Kept as a constant so applications can

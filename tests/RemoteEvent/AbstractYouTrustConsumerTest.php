@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\RemoteEvent;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\RemoteEvent;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\RemoteEvent\RemoteEvent;
-use Zeggriim\YousignWebhookBundle\Enum\YousignEvent;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\Consumer\AbstractYousignConsumer;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Enum\YouTrustEvent;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\Consumer\AbstractYouTrustConsumer;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-final class AbstractYousignConsumerTest extends TestCase
+final class AbstractYouTrustConsumerTest extends TestCase
 {
     public function testItRoutesAnEventToItsDedicatedMethod(): void
     {
@@ -62,15 +62,15 @@ final class AbstractYousignConsumerTest extends TestCase
         self::assertNotNull($lastEvent);
         self::assertSame('sr-1', $lastEvent->getSignatureRequest()?->id);
         self::assertSame('signer-1', $lastEvent->getSigner()?->id);
-        self::assertSame(YousignEvent::SIGNATURE_REQUEST_DONE, $lastEvent->getEventType());
+        self::assertSame(YouTrustEvent::SIGNATURE_REQUEST_DONE, $lastEvent->getEventType());
     }
 
     /**
      * @param array<string, mixed> $data
      */
-    private static function event(string $name, array $data = []): YousignRemoteEvent
+    private static function event(string $name, array $data = []): YouTrustRemoteEvent
     {
-        return new YousignRemoteEvent(
+        return new YouTrustRemoteEvent(
             $name,
             'event-id',
             ['metadata' => ['event_name' => $name], 'data' => $data],
@@ -82,26 +82,26 @@ final class AbstractYousignConsumerTest extends TestCase
     }
 }
 
-final class SpyConsumer extends AbstractYousignConsumer
+final class SpyConsumer extends AbstractYouTrustConsumer
 {
     /** @var list<string> */
     public array $calls = [];
 
-    public ?YousignRemoteEvent $lastEvent = null;
+    public ?YouTrustRemoteEvent $lastEvent = null;
 
-    protected function onSignatureRequestDone(YousignRemoteEvent $event): void
+    protected function onSignatureRequestDone(YouTrustRemoteEvent $event): void
     {
         $this->calls[] = 'onSignatureRequestDone';
         $this->lastEvent = $event;
     }
 
-    protected function onVerificationIdentityDocumentDone(YousignRemoteEvent $event): void
+    protected function onVerificationIdentityDocumentDone(YouTrustRemoteEvent $event): void
     {
         $this->calls[] = 'onVerificationIdentityDocumentDone';
         $this->lastEvent = $event;
     }
 
-    protected function onEvent(YousignRemoteEvent $event): void
+    protected function onEvent(YouTrustRemoteEvent $event): void
     {
         $this->calls[] = 'onEvent:'.$event->getName();
         $this->lastEvent = $event;

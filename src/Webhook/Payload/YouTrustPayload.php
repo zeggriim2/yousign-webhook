@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Webhook\Payload;
+namespace Zeggriim\YouTrustWebhookBundle\Webhook\Payload;
 
 use DateTimeImmutable;
-use Zeggriim\YousignWebhookBundle\Exception\InvalidArgumentException;
+use Zeggriim\YouTrustWebhookBundle\Exception\InvalidArgumentException;
 
 /**
  * Normalized representation of a Yousign (YouTrust) webhook payload.
@@ -21,7 +21,7 @@ use Zeggriim\YousignWebhookBundle\Exception\InvalidArgumentException;
  *
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
  */
-final class YousignPayload
+final class YouTrustPayload
 {
     public readonly string $eventId;
     public readonly string $eventName;

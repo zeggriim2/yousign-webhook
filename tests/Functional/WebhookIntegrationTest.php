@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Functional;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser;
 
 /**
  * @internal
@@ -39,7 +39,7 @@ final class WebhookIntegrationTest extends TestCase
         $container = $this->kernel->getContainer()->get('test.service_container');
         \assert($container instanceof \Psr\Container\ContainerInterface);
 
-        self::assertInstanceOf(YousignRequestParser::class, $container->get(YousignRequestParser::class));
+        self::assertInstanceOf(YouTrustRequestParser::class, $container->get(YouTrustRequestParser::class));
     }
 
     public function testAValidWebhookIsForwardedToTheConsumer(): void
@@ -53,7 +53,7 @@ final class WebhookIntegrationTest extends TestCase
 
         self::assertCount(1, $consumer->events);
         $event = $consumer->events[0];
-        self::assertInstanceOf(YousignRemoteEvent::class, $event);
+        self::assertInstanceOf(YouTrustRemoteEvent::class, $event);
         self::assertSame('signature_request.done', $event->getName());
         self::assertSame('b6c63685-c556-4a30-8fe9-b6f2b187d936', $event->getId());
         self::assertSame(['signature_request' => ['id' => 'xxx-xxx', 'status' => 'done']], $event->getData());
@@ -62,7 +62,7 @@ final class WebhookIntegrationTest extends TestCase
     public function testAnInvalidSignatureIsRejected(): void
     {
         $request = $this->request(self::payload());
-        $request->headers->set(YousignSignatureVerifier::SIGNATURE_HEADER, 'sha256=deadbeef');
+        $request->headers->set(YouTrustSignatureVerifier::SIGNATURE_HEADER, 'sha256=deadbeef');
 
         $response = $this->kernel->handle($request);
 

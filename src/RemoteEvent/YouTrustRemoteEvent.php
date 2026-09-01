@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\RemoteEvent;
+namespace Zeggriim\YouTrustWebhookBundle\RemoteEvent;
 
 use DateTimeImmutable;
 use Symfony\Component\RemoteEvent\RemoteEvent;
-use Zeggriim\YousignWebhookBundle\Enum\YousignEvent;
-use Zeggriim\YousignWebhookBundle\Model\SignatureRequest;
-use Zeggriim\YousignWebhookBundle\Model\Signer;
+use Zeggriim\YouTrustWebhookBundle\Enum\YouTrustEvent;
+use Zeggriim\YouTrustWebhookBundle\Model\SignatureRequest;
+use Zeggriim\YouTrustWebhookBundle\Model\Signer;
 
 /**
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
  */
-final class YousignRemoteEvent extends RemoteEvent
+final class YouTrustRemoteEvent extends RemoteEvent
 {
     /**
      * Header sent by Yousign (YouTrust) holding the delivery attempt number.
@@ -83,9 +83,9 @@ final class YousignRemoteEvent extends RemoteEvent
      * The documented event this delivery matches, or null for an event Yousign
      * added after this release.
      */
-    public function getEventType(): ?YousignEvent
+    public function getEventType(): ?YouTrustEvent
     {
-        return YousignEvent::tryFrom($this->getName());
+        return YouTrustEvent::tryFrom($this->getName());
     }
 
     /**

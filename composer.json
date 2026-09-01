@@ -1,7 +1,14 @@
 {
-    "name": "zeggriim/yousign-webhook-bundle",
-    "description": "A Symfony bridge for handling Yousign (YouTrust) webhooks via RemoteEvent.",
-    "keywords": ["yousign", "youtrust", "webhook", "remote-event", "symfony", "bundle"],
+    "name": "zeggriim/youtrust-webhook-bundle",
+    "description": "A Symfony bridge for handling YouTrust (formerly Yousign) webhooks via RemoteEvent.",
+    "keywords": [
+        "yousign",
+        "youtrust",
+        "webhook",
+        "remote-event",
+        "symfony",
+        "bundle"
+    ],
     "license": "MIT",
     "type": "symfony-bundle",
     "require": {
@@ -27,12 +34,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Zeggriim\\YousignWebhookBundle\\": "src/"
-        }
+            "Zeggriim\\YouTrustWebhookBundle\\": "src/",
+            "Zeggriim\\YousignWebhookBundle\\": "src/Legacy/"
+        },
+        "files": [
+            "src/Legacy/aliases.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Zeggriim\\YousignWebhookBundle\\Tests\\": "tests/"
+            "Zeggriim\\YouTrustWebhookBundle\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -45,5 +56,13 @@
         "sort-packages": true
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "replace": {
+        "zeggriim/yousign-webhook-bundle": "self.version"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
+    }
 }

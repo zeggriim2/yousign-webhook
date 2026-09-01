@@ -1,0 +1,12 @@
+framework:
+    webhook:
+        routing:
+            yousign:
+                service: Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser
+                secret: '%env(YOUTRUST_WEBHOOK_SECRET)%'
+
+youtrust_webhook:
+    legacy_controller: false
+    # idempotency:
+    #     enabled: true
+    #     pool: cache.app

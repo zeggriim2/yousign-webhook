@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Webhook;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Webhook;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Zeggriim\YousignWebhookBundle\Enum\YousignEvent;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
+use Zeggriim\YouTrustWebhookBundle\Enum\YouTrustEvent;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustConverter;
 
 /**
  * Every documented event must be parsable, today and after Yousign adds fields.
@@ -23,7 +23,7 @@ final class EventFixturesTest extends TestCase
     #[DataProvider('provideEventFixtures')]
     public function testEveryDocumentedEventIsParsed(string $eventName, string $file): void
     {
-        $event = (new YousignConverter())->convert(self::load($file));
+        $event = (new YouTrustConverter())->convert(self::load($file));
 
         self::assertSame($eventName, $event->getName());
         self::assertSame('d09f0367-d80a-309c-a2ed-7083991fc564', $event->getId());
@@ -31,13 +31,13 @@ final class EventFixturesTest extends TestCase
         self::assertSame(1670855889, $event->getEventTime()->getTimestamp());
         self::assertSame(0, $event->getRetryCount());
         self::assertNotSame([], $event->getData());
-        self::assertSame(YousignEvent::from($eventName), $event->getEventType());
+        self::assertSame(YouTrustEvent::from($eventName), $event->getEventType());
     }
 
     #[DataProvider('provideEventFixtures')]
     public function testSignatureRequestAndSignerAreTypedWhenPresent(string $eventName, string $file): void
     {
-        $event = (new YousignConverter())->convert(self::load($file));
+        $event = (new YouTrustConverter())->convert(self::load($file));
         $data = $event->getData();
 
         self::assertSame(
@@ -69,7 +69,7 @@ final class EventFixturesTest extends TestCase
             glob(self::FIXTURES_DIR.'/*.json') ?: [],
         );
 
-        $expected = array_map(static fn (YousignEvent $event): string => $event->value, YousignEvent::cases());
+        $expected = array_map(static fn (YouTrustEvent $event): string => $event->value, YouTrustEvent::cases());
 
         sort($fixtures);
         sort($expected);

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Model;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Model;
 
 use PHPUnit\Framework\TestCase;
-use Zeggriim\YousignWebhookBundle\Model\SignatureRequest;
-use Zeggriim\YousignWebhookBundle\Model\Signer;
+use Zeggriim\YouTrustWebhookBundle\Model\SignatureRequest;
+use Zeggriim\YouTrustWebhookBundle\Model\Signer;
 
 /**
  * @internal

@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Functional;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser;
 use Zeggriim\YousignWebhookBundle\YousignWebhookBundle;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser;
+use Zeggriim\YouTrustWebhookBundle\YouTrustWebhookBundle;
 
 final class TestKernel extends Kernel
 {
@@ -20,9 +21,12 @@ final class TestKernel extends Kernel
 
     /**
      * @param array<string, mixed> $bundleConfig
+     * @param bool                 $legacyBundle register the deprecated bundle and its "yousign_webhook" key
      */
-    public function __construct(private readonly array $bundleConfig = ['legacy_controller' => false])
-    {
+    public function __construct(
+        private readonly array $bundleConfig = ['legacy_controller' => false],
+        private readonly bool $legacyBundle = false,
+    ) {
         parent::__construct('test', false);
     }
 
@@ -32,12 +36,12 @@ final class TestKernel extends Kernel
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
-        yield new YousignWebhookBundle();
+        yield $this->legacyBundle ? new YousignWebhookBundle() : new YouTrustWebhookBundle();
     }
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir().'/yousign-webhook-bundle/'.hash('xxh128', serialize($this->bundleConfig));
+        return sys_get_temp_dir().'/youtrust-webhook-bundle/'.hash('xxh128', serialize([$this->bundleConfig, $this->legacyBundle]));
     }
 
     public function getLogDir(): string
@@ -55,14 +59,14 @@ final class TestKernel extends Kernel
             'webhook' => [
                 'routing' => [
                     'yousign' => [
-                        'service' => YousignRequestParser::class,
+                        'service' => YouTrustRequestParser::class,
                         'secret' => self::WEBHOOK_SECRET,
                     ],
                 ],
             ],
         ]);
 
-        $container->extension('yousign_webhook', $this->bundleConfig);
+        $container->extension($this->legacyBundle ? 'yousign_webhook' : 'youtrust_webhook', $this->bundleConfig);
 
         $container->services()
             ->set(RecordingConsumer::class)

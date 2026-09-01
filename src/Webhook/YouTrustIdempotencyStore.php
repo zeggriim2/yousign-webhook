@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Webhook;
+namespace Zeggriim\YouTrustWebhookBundle\Webhook;
 
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -15,7 +15,7 @@ use Psr\Cache\CacheItemPoolInterface;
  *
  * @see https://developers.youtrust.com/docs/failure-and-retry-policy
  */
-final class YousignIdempotencyStore
+final class YouTrustIdempotencyStore
 {
     private const KEY_PREFIX = 'yousign_webhook.event.';
 

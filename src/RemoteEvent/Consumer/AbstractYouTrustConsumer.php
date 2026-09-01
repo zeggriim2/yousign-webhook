@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\RemoteEvent\Consumer;
+namespace Zeggriim\YouTrustWebhookBundle\RemoteEvent\Consumer;
 
 use Symfony\Component\RemoteEvent\Consumer\ConsumerInterface;
 use Symfony\Component\RemoteEvent\RemoteEvent;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
 
 /**
  * Base consumer dispatching each Yousign (YouTrust) event to its own method,
@@ -18,20 +18,20 @@ use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
  * back to onEvent().
  *
  *     #[AsRemoteEventConsumer('yousign')]
- *     final class MyConsumer extends AbstractYousignConsumer
+ *     final class MyConsumer extends AbstractYouTrustConsumer
  *     {
- *         protected function onSignatureRequestDone(YousignRemoteEvent $event): void
+ *         protected function onSignatureRequestDone(YouTrustRemoteEvent $event): void
  *         {
  *             $signatureRequest = $event->getSignatureRequest();
  *             // ...
  *         }
  *     }
  */
-abstract class AbstractYousignConsumer implements ConsumerInterface
+abstract class AbstractYouTrustConsumer implements ConsumerInterface
 {
     final public function consume(RemoteEvent $event): void
     {
-        if (!$event instanceof YousignRemoteEvent) {
+        if (!$event instanceof YouTrustRemoteEvent) {
             return;
         }
 
@@ -50,7 +50,7 @@ abstract class AbstractYousignConsumer implements ConsumerInterface
     /**
      * Called for every event without a dedicated method.
      */
-    protected function onEvent(YousignRemoteEvent $event): void
+    protected function onEvent(YouTrustRemoteEvent $event): void
     {
     }
 

@@ -10,6 +10,6 @@ Yousign (YouTrust), au format actuel `{ "metadata": …, "data": … }`.
   mais ne sont pas des copies littérales.
 
 Ces fixtures servent à garantir que le parsing accepte l'ensemble du catalogue
-d'événements et que chaque nom se résout dans l'énumération `YousignEvent`.
+d'événements et que chaque nom se résout dans l'énumération `YouTrustEvent`.
 Pour rejouer un événement réel, remplacez simplement le fichier concerné par une
 capture issue de votre compte sandbox.

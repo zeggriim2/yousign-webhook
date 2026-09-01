@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Exception;
+namespace Zeggriim\YouTrustWebhookBundle\Exception;
 
 use Throwable;
 

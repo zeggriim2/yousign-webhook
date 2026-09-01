@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Controller;
+namespace Zeggriim\YouTrustWebhookBundle\Controller;
 
 use JsonException;
 use Psr\Log\LoggerInterface;
@@ -13,26 +13,26 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\Messenger\ConsumeRemoteEventMessage;
 use Throwable;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
-use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustIpChecker;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustConverter;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustIdempotencyStore;
 
 /**
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
  */
-final class YousignWebhookController
+final class YouTrustWebhookController
 {
     private readonly LoggerInterface $logger;
 
     public function __construct(
-        private readonly YousignConverter $converter,
-        private readonly YousignSignatureVerifier $signatureVerifier,
+        private readonly YouTrustConverter $converter,
+        private readonly YouTrustSignatureVerifier $signatureVerifier,
         private readonly MessageBusInterface $messageBus,
         ?LoggerInterface $logger = null,
-        private readonly ?YousignIpChecker $ipChecker = null,
-        private readonly ?YousignIdempotencyStore $idempotencyStore = null,
+        private readonly ?YouTrustIpChecker $ipChecker = null,
+        private readonly ?YouTrustIdempotencyStore $idempotencyStore = null,
         private readonly string $type = 'yousign',
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -57,7 +57,7 @@ final class YousignWebhookController
         try {
             $remoteEvent = $this->converter->convert(
                 $this->decode($request->getContent()),
-                (int) $request->headers->get(YousignRemoteEvent::RETRY_HEADER, '0'),
+                (int) $request->headers->get(YouTrustRemoteEvent::RETRY_HEADER, '0'),
             );
         } catch (ParseException|JsonException $e) {
             $this->logger->warning('Yousign webhook rejected: invalid payload.', ['exception' => $e]);

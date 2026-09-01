@@ -14,7 +14,7 @@ La documentation YouTrust v3 décrit aujourd'hui :
 
 - un payload `{ "metadata": { event_id, event_name, event_time, subscription_id,
   subscription_description, sandbox }, "data": {…} }` — alors que
-  `YousignPayload` lit ces champs **à la racine**, ce qui provoque une
+  `YouTrustPayload` lit ces champs **à la racine**, ce qui provoque une
   `ParseException` systématique sur ce format ;
 - une politique de retry (`X-Yousign-Retry`, timeout **1 s** au premier envoi et
   10 s ensuite, 8 tentatives, suspension d'endpoint) et une recommandation
@@ -52,7 +52,7 @@ La documentation YouTrust v3 décrit aujourd'hui :
 
 ### A1 — Supporter le payload `metadata` imbriqué (+ rétro-compat format plat)
 
-*Pourquoi* : bug fonctionnel, `YousignPayload` exige `event_id` à la racine alors
+*Pourquoi* : bug fonctionnel, `YouTrustPayload` exige `event_id` à la racine alors
 que la doc v3 place ces champs sous `metadata`.
 *Quoi* : détecter la forme du payload et normaliser vers les mêmes propriétés,
 sans changer l'API publique du DTO.
@@ -72,7 +72,7 @@ est accepté.
 ### A3 — Exposer les métadonnées de livraison
 
 *Quoi* : ajouter `retryCount` (`X-Yousign-Retry`) et le payload brut au
-`YousignRemoteEvent`.
+`YouTrustRemoteEvent`.
 *Fini quand* : `getRetryCount()` renvoie la valeur du header, test dédié.
 
 ## Épic B — Sécurité et robustesse HTTP
@@ -110,7 +110,7 @@ documentées : `57.130.41.144/28`, `51.38.96.112/28`, `5.39.7.128/28`,
 
 ## Épic C — Migration vers `symfony/webhook`
 
-### C1 — `YousignRequestParser`
+### C1 — `YouTrustRequestParser`
 
 *Quoi* : `AbstractRequestParser` avec `getRequestMatcher()` et `doParse()`,
 configuré via `framework.webhook.routing`. Supprime le contrôleur, la route,
@@ -133,7 +133,7 @@ l'option `endpoint` et le dispatch manuel sur le bus.
 
 ## Épic D — Événements typés
 
-### D1 — Enum `YousignEvent`
+### D1 — Enum `YouTrustEvent`
 
 *Quoi* : énumération du catalogue documenté. `tryFrom()` uniquement : un
 événement inconnu ne doit jamais faire échouer le parsing.

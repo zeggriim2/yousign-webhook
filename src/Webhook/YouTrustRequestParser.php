@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Webhook;
+namespace Zeggriim\YouTrustWebhookBundle\Webhook;
 
 use JsonException;
 use Psr\Log\LoggerInterface;
@@ -17,9 +17,9 @@ use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\RemoteEvent;
 use Symfony\Component\Webhook\Client\AbstractRequestParser;
 use Symfony\Component\Webhook\Exception\RejectWebhookException;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
-use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustIpChecker;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
 
 /**
  * Parses incoming Yousign (YouTrust) webhook requests for the Symfony Webhook component.
@@ -30,20 +30,20 @@ use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
  *         webhook:
  *             routing:
  *                 yousign:
- *                     service: Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser
+ *                     service: Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser
  *                     secret: '%env(YOUSIGN_WEBHOOK_SECRET)%'
  *
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
  */
-final class YousignRequestParser extends AbstractRequestParser
+final class YouTrustRequestParser extends AbstractRequestParser
 {
     private readonly LoggerInterface $logger;
 
     public function __construct(
-        private readonly YousignConverter $converter,
+        private readonly YouTrustConverter $converter,
         ?LoggerInterface $logger = null,
-        private readonly ?YousignIpChecker $ipChecker = null,
-        private readonly ?YousignIdempotencyStore $idempotencyStore = null,
+        private readonly ?YouTrustIpChecker $ipChecker = null,
+        private readonly ?YouTrustIdempotencyStore $idempotencyStore = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
     }
@@ -66,9 +66,9 @@ final class YousignRequestParser extends AbstractRequestParser
             throw new RejectWebhookException(Response::HTTP_FORBIDDEN, 'Client IP is not allowed.');
         }
 
-        $signature = $request->headers->get(YousignSignatureVerifier::SIGNATURE_HEADER);
+        $signature = $request->headers->get(YouTrustSignatureVerifier::SIGNATURE_HEADER);
 
-        if (!YousignSignatureVerifier::isValid($request->getContent(), $signature, $secret)) {
+        if (!YouTrustSignatureVerifier::isValid($request->getContent(), $signature, $secret)) {
             $this->logger->warning('Yousign webhook rejected: invalid signature.');
 
             throw new RejectWebhookException(Response::HTTP_UNAUTHORIZED, 'Invalid signature.');
@@ -77,7 +77,7 @@ final class YousignRequestParser extends AbstractRequestParser
         try {
             $event = $this->converter->convert(
                 $this->decode($request->getContent()),
-                (int) $request->headers->get(YousignRemoteEvent::RETRY_HEADER, '0'),
+                (int) $request->headers->get(YouTrustRemoteEvent::RETRY_HEADER, '0'),
             );
         } catch (ParseException|JsonException $e) {
             $this->logger->warning('Yousign webhook rejected: invalid payload.', ['exception' => $e]);

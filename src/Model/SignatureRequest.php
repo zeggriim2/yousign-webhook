@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Model;
+namespace Zeggriim\YouTrustWebhookBundle\Model;
 
 use DateTimeImmutable;
 

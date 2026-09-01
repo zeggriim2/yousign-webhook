@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Security;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Security;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-final class YousignSignatureVerifierTest extends TestCase
+final class YouTrustSignatureVerifierTest extends TestCase
 {
     private const SECRET = 'keySecret';
 
@@ -22,7 +22,7 @@ final class YousignSignatureVerifierTest extends TestCase
     {
         $body = '{"metadata":{},"data":{}}';
 
-        self::assertTrue((new YousignSignatureVerifier(self::SECRET))->verify($body, self::sign($body)));
+        self::assertTrue((new YouTrustSignatureVerifier(self::SECRET))->verify($body, self::sign($body)));
     }
 
     public function testItAcceptsTheSignatureFromTheRequestHeader(): void
@@ -32,13 +32,13 @@ final class YousignSignatureVerifierTest extends TestCase
         // HeaderBag lookups are case-insensitive, mirroring what Yousign sends.
         $request->headers->set('x-yousign-signature-256', self::sign($body));
 
-        self::assertTrue((new YousignSignatureVerifier(self::SECRET))->verifySignature($request));
+        self::assertTrue((new YouTrustSignatureVerifier(self::SECRET))->verifySignature($request));
     }
 
     #[DataProvider('provideItRejectsInvalidSignaturesCases')]
     public function testItRejectsInvalidSignatures(?string $signature): void
     {
-        self::assertFalse((new YousignSignatureVerifier(self::SECRET))->verify('{"data":{}}', $signature));
+        self::assertFalse((new YouTrustSignatureVerifier(self::SECRET))->verify('{"data":{}}', $signature));
     }
 
     /**
@@ -59,12 +59,12 @@ final class YousignSignatureVerifierTest extends TestCase
     {
         $body = '{"data":{}}';
 
-        self::assertFalse((new YousignSignatureVerifier(''))->verify($body, 'sha256='.hash_hmac('sha256', $body, '')));
+        self::assertFalse((new YouTrustSignatureVerifier(''))->verify($body, 'sha256='.hash_hmac('sha256', $body, '')));
     }
 
     public function testTheSignatureIsComputedOnTheRawBody(): void
     {
-        $verifier = new YousignSignatureVerifier(self::SECRET);
+        $verifier = new YouTrustSignatureVerifier(self::SECRET);
         $raw = '{"data":   {"a":1}}';
 
         self::assertTrue($verifier->verify($raw, self::sign($raw)));

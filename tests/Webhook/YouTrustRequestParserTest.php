@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Webhook;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Webhook;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Webhook\Exception\RejectWebhookException;
-use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
-use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
-use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
-use Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser;
+use Zeggriim\YouTrustWebhookBundle\RemoteEvent\YouTrustRemoteEvent;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustIpChecker;
+use Zeggriim\YouTrustWebhookBundle\Security\YouTrustSignatureVerifier;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustConverter;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustIdempotencyStore;
+use Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-final class YousignRequestParserTest extends TestCase
+final class YouTrustRequestParserTest extends TestCase
 {
     private const SECRET = 'wh-secret';
 
@@ -29,7 +29,7 @@ final class YousignRequestParserTest extends TestCase
     {
         $event = $this->parser()->parse($this->request(self::payload(), retry: 2), self::SECRET);
 
-        self::assertInstanceOf(YousignRemoteEvent::class, $event);
+        self::assertInstanceOf(YouTrustRemoteEvent::class, $event);
         self::assertSame('signature_request.done', $event->getName());
         self::assertSame(2, $event->getRetryCount());
         self::assertSame('sr-1', $event->getSignatureRequest()?->id);
@@ -47,7 +47,7 @@ final class YousignRequestParserTest extends TestCase
     public function testItRejectsAMissingSignature(): void
     {
         $request = $this->request(self::payload());
-        $request->headers->remove(YousignSignatureVerifier::SIGNATURE_HEADER);
+        $request->headers->remove(YouTrustSignatureVerifier::SIGNATURE_HEADER);
 
         $this->assertRejects(Response::HTTP_UNAUTHORIZED, fn () => $this->parser()->parse($request, self::SECRET));
     }
@@ -69,22 +69,22 @@ final class YousignRequestParserTest extends TestCase
 
     public function testItRejectsAnUnknownClientIpWhenTheAllowlistIsEnabled(): void
     {
-        $parser = $this->parser(ipChecker: new YousignIpChecker(YousignIpChecker::DOCUMENTED_RANGES));
+        $parser = $this->parser(ipChecker: new YouTrustIpChecker(YouTrustIpChecker::DOCUMENTED_RANGES));
 
         $this->assertRejects(Response::HTTP_FORBIDDEN, fn () => $parser->parse($this->request(self::payload()), self::SECRET));
     }
 
     public function testARedeliveredEventIsSkipped(): void
     {
-        $parser = $this->parser(store: new YousignIdempotencyStore(new ArrayAdapter()));
+        $parser = $this->parser(store: new YouTrustIdempotencyStore(new ArrayAdapter()));
 
         self::assertNotNull($parser->parse($this->request(self::payload()), self::SECRET));
         self::assertNull($parser->parse($this->request(self::payload(), retry: 1), self::SECRET));
     }
 
-    private function parser(?YousignIpChecker $ipChecker = null, ?YousignIdempotencyStore $store = null): YousignRequestParser
+    private function parser(?YouTrustIpChecker $ipChecker = null, ?YouTrustIdempotencyStore $store = null): YouTrustRequestParser
     {
-        return new YousignRequestParser(new YousignConverter(), null, $ipChecker, $store);
+        return new YouTrustRequestParser(new YouTrustConverter(), null, $ipChecker, $store);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Security;
+namespace Zeggriim\YouTrustWebhookBundle\Security;
 
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @author Lilian D'orazio <zeggriim@gmail.com>
  */
-final class YousignSignatureVerifier
+final class YouTrustSignatureVerifier
 {
     public const SIGNATURE_HEADER = 'X-Yousign-Signature-256';
 

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Zeggriim\YousignWebhookBundle\Tests\Webhook\Payload;
+namespace Zeggriim\YouTrustWebhookBundle\Tests\Webhook\Payload;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Zeggriim\YousignWebhookBundle\Exception\InvalidArgumentException;
-use Zeggriim\YousignWebhookBundle\Webhook\Payload\YousignPayload;
+use Zeggriim\YouTrustWebhookBundle\Exception\InvalidArgumentException;
+use Zeggriim\YouTrustWebhookBundle\Webhook\Payload\YouTrustPayload;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-final class YousignPayloadTest extends TestCase
+final class YouTrustPayloadTest extends TestCase
 {
     /**
      * @param array<string, mixed> $payload
@@ -22,7 +22,7 @@ final class YousignPayloadTest extends TestCase
     #[DataProvider('provideItParsesBothPayloadShapesCases')]
     public function testItParsesBothPayloadShapes(array $payload): void
     {
-        $parsed = new YousignPayload($payload);
+        $parsed = new YouTrustPayload($payload);
 
         self::assertSame('b6c63685-c556-4a30-8fe9-b6f2b187d936', $parsed->eventId);
         self::assertSame('signature_request.activated', $parsed->eventName);
@@ -54,7 +54,7 @@ final class YousignPayloadTest extends TestCase
 
     public function testItToleratesMissingOptionalKeysAndUnknownOnes(): void
     {
-        $parsed = new YousignPayload([
+        $parsed = new YouTrustPayload([
             'metadata' => [
                 'event_id' => 'event-id',
                 'event_name' => 'some.brand.new.event',
@@ -76,7 +76,7 @@ final class YousignPayloadTest extends TestCase
     {
         $before = time();
 
-        $parsed = new YousignPayload([
+        $parsed = new YouTrustPayload([
             'metadata' => ['event_id' => 'id', 'event_name' => 'signer.done', 'event_time' => 'not-a-timestamp'],
             'data' => [],
         ]);
@@ -92,7 +92,7 @@ final class YousignPayloadTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new YousignPayload($payload);
+        new YouTrustPayload($payload);
     }
 
     /**
