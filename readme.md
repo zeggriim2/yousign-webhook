@@ -64,10 +64,9 @@ yousign_webhook:
 > configurés via `yousign_webhook.secret` / `endpoint` / `type`. Voir
 > [UPGRADE.md](UPGRADE.md) pour la migration.
 
-## Exemple cas d'utilisation
+## 🎯 Consommer les événements
 
-Une fois terminé, ajoutez un consumer avec le RemoteEvent en utilisant le name 'yousign'.
-Cela te permettra de réagir avec le webhook entrants.
+Un consumer `RemoteEvent` classique reçoit tous les événements :
 
 ```php
 use Symfony\Component\RemoteEvent\Attribute\AsRemoteEventConsumer;
@@ -83,6 +82,58 @@ final class YousignWebhookConsumer implements ConsumerInterface
     }
 }
 ```
+
+Pour éviter un gros `match` sur le nom de l'événement, étendez plutôt
+`AbstractYousignConsumer` : chaque événement est routé vers sa propre méthode,
+nommée d'après lui (`signature_request.done` → `onSignatureRequestDone`).
+
+```php
+use Symfony\Component\RemoteEvent\Attribute\AsRemoteEventConsumer;
+use Zeggriim\YousignWebhookBundle\RemoteEvent\Consumer\AbstractYousignConsumer;
+use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
+
+#[AsRemoteEventConsumer('yousign')]
+final class YousignWebhookConsumer extends AbstractYousignConsumer
+{
+    protected function onSignatureRequestDone(YousignRemoteEvent $event): void
+    {
+        $signatureRequest = $event->getSignatureRequest();
+
+        $this->archive($signatureRequest?->id, $signatureRequest?->externalId);
+    }
+
+    protected function onSignerDone(YousignRemoteEvent $event): void
+    {
+        $signer = $event->getSigner();
+
+        $this->notify($signer?->email, $signer?->fullName());
+    }
+
+    // Tous les autres événements
+    protected function onEvent(YousignRemoteEvent $event): void
+    {
+        $this->logger->info('Unhandled Yousign event', ['name' => $event->getName()]);
+    }
+}
+```
+
+### Données typées
+
+| Méthode                       | Retour                                     |
+| ----------------------------- | ------------------------------------------ |
+| `getEventType()`              | `YousignEvent` ou `null` si Yousign a ajouté un événement plus récent que le bundle |
+| `getSignatureRequest()`       | `SignatureRequest` ou `null`               |
+| `getSigner()`                 | `Signer` ou `null`                         |
+| `getData()`                   | le contenu brut de la clé `data`           |
+| `getPayload()`                | le payload complet, non modifié            |
+| `isSandbox()`                 | environnement sandbox ou production        |
+| `getRetryCount()` / `isRetry()` | numéro de tentative de livraison         |
+| `getEventTime()`              | date de l'événement                        |
+
+Les modèles typés sont tolérants : toute propriété absente ou inattendue vaut
+`null` plutôt que de faire échouer le traitement, et `->raw` donne accès au
+tableau d'origine.
+
 ## ⏱️ Répondre en moins d'une seconde
 
 Yousign coupe la connexion au bout d'**1 seconde** lors de la première tentative

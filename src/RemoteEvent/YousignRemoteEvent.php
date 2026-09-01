@@ -6,6 +6,9 @@ namespace Zeggriim\YousignWebhookBundle\RemoteEvent;
 
 use DateTimeImmutable;
 use Symfony\Component\RemoteEvent\RemoteEvent;
+use Zeggriim\YousignWebhookBundle\Enum\YousignEvent;
+use Zeggriim\YousignWebhookBundle\Model\SignatureRequest;
+use Zeggriim\YousignWebhookBundle\Model\Signer;
 
 /**
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
@@ -17,6 +20,12 @@ final class YousignRemoteEvent extends RemoteEvent
      * It equals 0 on the first delivery and is incremented on every retry.
      */
     public const RETRY_HEADER = 'X-Yousign-Retry';
+
+    private bool $signatureRequestParsed = false;
+    private ?SignatureRequest $signatureRequest = null;
+
+    private bool $signerParsed = false;
+    private ?Signer $signer = null;
 
     /**
      * @param array<string, mixed> $payload
@@ -71,6 +80,49 @@ final class YousignRemoteEvent extends RemoteEvent
     }
 
     /**
+     * The documented event this delivery matches, or null for an event Yousign
+     * added after this release.
+     */
+    public function getEventType(): ?YousignEvent
+    {
+        return YousignEvent::tryFrom($this->getName());
+    }
+
+    /**
+     * The signature request carried by the event, when there is one.
+     */
+    public function getSignatureRequest(): ?SignatureRequest
+    {
+        if (!$this->signatureRequestParsed) {
+            $this->signatureRequestParsed = true;
+            $data = $this->getData()['signature_request'] ?? null;
+
+            if (\is_array($data)) {
+                $this->signatureRequest = SignatureRequest::fromArray(self::toMap($data));
+            }
+        }
+
+        return $this->signatureRequest;
+    }
+
+    /**
+     * The signer carried by the event, when there is one.
+     */
+    public function getSigner(): ?Signer
+    {
+        if (!$this->signerParsed) {
+            $this->signerParsed = true;
+            $data = $this->getData()['signer'] ?? null;
+
+            if (\is_array($data)) {
+                $this->signer = Signer::fromArray(self::toMap($data));
+            }
+        }
+
+        return $this->signer;
+    }
+
+    /**
      * The event specific part of the payload ("data" key).
      *
      * @return array<string, mixed>
@@ -79,12 +131,18 @@ final class YousignRemoteEvent extends RemoteEvent
     {
         $data = $this->getPayload()['data'] ?? [];
 
-        if (!\is_array($data)) {
-            return [];
-        }
+        return \is_array($data) ? self::toMap($data) : [];
+    }
 
+    /**
+     * @param array<mixed> $values
+     *
+     * @return array<string, mixed>
+     */
+    private static function toMap(array $values): array
+    {
         $map = [];
-        foreach ($data as $key => $value) {
+        foreach ($values as $key => $value) {
             $map[(string) $key] = $value;
         }
 

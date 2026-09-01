@@ -31,8 +31,6 @@ final class YousignIdempotencyStore
     }
 
     /**
-     * Marks an event as handled.
-     *
      * @return bool true when the event is seen for the first time (it must be processed),
      *              false when it has already been handled (it must be skipped)
      */
