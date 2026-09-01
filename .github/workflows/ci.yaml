@@ -4,31 +4,67 @@ on:
     push:
         branches: [main]
     pull_request:
-        branches: [main] # cette syntaxe est correcte
-        types: [opened, synchronize, reopened] # optionnel mais plus explicite
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
 
 jobs:
-    checks:
-        name: PHPStan, PHP CS Fixer & PHPUnit
+    static-analysis:
+        name: PHPStan & PHP CS Fixer
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
+            - uses: shivammathur/setup-php@v2
               with:
                   php-version: '8.3'
                   coverage: none
 
-            - name: Install dependencies
-              run: composer install --no-interaction --prefer-dist
+            - name: Validate composer.json
+              run: composer validate --strict
 
-            - name: Run PHPStan
-              run: ./vendor/bin/phpstan analyse --memory-limit=512M
+            - uses: ramsey/composer-install@v3
 
-            - name: Run PHP CS Fixer
+            - name: PHPStan
+              run: ./vendor/bin/phpstan analyse --memory-limit=512M --no-progress
+
+            - name: PHP CS Fixer
               run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
-            - name: Run PHPUnit
+    tests:
+        name: PHPUnit (PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}${{ matrix.dependencies == 'lowest' && ', lowest' || '' }})
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ['8.2', '8.3', '8.4']
+                symfony: ['6.4.*', '7.*']
+                dependencies: ['highest']
+                include:
+                    - php: '8.2'
+                      symfony: '6.4.*'
+                      dependencies: 'lowest'
+                    - php: '8.4'
+                      symfony: '8.*'
+                      dependencies: 'highest'
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+
+            - name: Restrict Symfony version
+              run: |
+                  composer global config --no-plugins allow-plugins.symfony/flex true
+                  composer global require --no-progress --no-scripts --no-plugins symfony/flex
+                  composer config extra.symfony.require "${{ matrix.symfony }}"
+
+            - uses: ramsey/composer-install@v3
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+
+            - name: PHPUnit
               run: ./vendor/bin/phpunit --no-coverage

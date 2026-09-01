@@ -1,14 +1,11 @@
 {
-  "name": "yousign",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "yousign-webhook-bundle",
+  "private": true,
+  "license": "MIT",
+  "description": "Outillage de développement (commitlint) du bundle YousignWebhook.",
   "scripts": {
     "lint:commit": "commitlint --from=HEAD"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
     "commitlint": "^19.8.1"
