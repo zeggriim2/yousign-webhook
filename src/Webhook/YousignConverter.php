@@ -14,8 +14,9 @@ final class YousignConverter implements PayloadConverterInterface
 {
     /**
      * @param array<string, mixed> $payload
+     * @param int                  $retryCount delivery attempt number, read from the X-Yousign-Retry header
      */
-    public function convert(array $payload): YousignRemoteEvent
+    public function convert(array $payload, int $retryCount = 0): YousignRemoteEvent
     {
         try {
             $wrapped = new YousignPayload($payload);
@@ -30,7 +31,8 @@ final class YousignConverter implements PayloadConverterInterface
             $wrapped->subscriptionId,
             $wrapped->subscriptionDescription,
             $wrapped->sandbox,
-            $wrapped->eventTime
+            $wrapped->eventTime,
+            max(0, $retryCount),
         );
     }
 }

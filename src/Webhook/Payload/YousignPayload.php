@@ -5,52 +5,137 @@ declare(strict_types=1);
 namespace Zeggriim\YousignWebhookBundle\Webhook\Payload;
 
 use DateTimeImmutable;
-use Webmozart\Assert\Assert;
+use Zeggriim\YousignWebhookBundle\Exception\InvalidArgumentException;
 
+/**
+ * Normalized representation of a Yousign (YouTrust) webhook payload.
+ *
+ * Two shapes are supported:
+ *  - the current YouTrust v3 shape, where the event metadata is nested
+ *    under a "metadata" key;
+ *  - the legacy shape, where the same keys live at the root of the payload.
+ *
+ * Following the "tolerant reader" recommendation of the YouTrust
+ * documentation, only "event_id", "event_name" and "data" are mandatory:
+ * unknown keys are ignored and missing optional keys fall back to a default.
+ *
+ * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
+ */
 final class YousignPayload
 {
     public readonly string $eventId;
     public readonly string $eventName;
+
     /** @var array<string, mixed> */
     public readonly array $data;
+
     public readonly string $subscriptionId;
     public readonly string $subscriptionDescription;
     public readonly bool $sandbox;
     public readonly DateTimeImmutable $eventTime;
+
+    /** @var array<string, mixed> */
+    public readonly array $metadata;
 
     /**
      * @param array<string, mixed> $payload
      */
     public function __construct(array $payload)
     {
-        Assert::keyExists($payload, 'event_id');
-        Assert::string($payload['event_id']);
-        $this->eventId = $payload['event_id'];
+        $metadata = self::extractMetadata($payload);
 
-        Assert::keyExists($payload, 'event_name');
-        Assert::string($payload['event_name']);
-        $this->eventName = $payload['event_name'];
+        $this->metadata = $metadata;
+        $this->eventId = self::requiredString($metadata, 'event_id');
+        $this->eventName = self::requiredString($metadata, 'event_name');
+        $this->data = self::requiredMap($payload, 'data');
+        $this->subscriptionId = self::optionalString($metadata, 'subscription_id');
+        $this->subscriptionDescription = self::optionalString($metadata, 'subscription_description');
+        $this->sandbox = isset($metadata['sandbox']) && filter_var($metadata['sandbox'], FILTER_VALIDATE_BOOL);
+        $this->eventTime = self::readEventTime($metadata);
+    }
 
-        Assert::keyExists($payload, 'data');
-        /** @var array<string, mixed> $data */
-        $data = $payload['data'];
-        Assert::isMap($payload['data']);
-        $this->data = $data;
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private static function extractMetadata(array $payload): array
+    {
+        if (isset($payload['metadata']) && \is_array($payload['metadata'])) {
+            return self::toMap($payload['metadata']);
+        }
 
-        Assert::keyExists($payload, 'subscription_id');
-        Assert::string($payload['subscription_id']);
-        $this->subscriptionId = $payload['subscription_id'];
+        return $payload;
+    }
 
-        Assert::keyExists($payload, 'subscription_description');
-        Assert::string($payload['subscription_description']);
-        $this->subscriptionDescription = $payload['subscription_description'];
+    /**
+     * @param array<string, mixed> $source
+     */
+    private static function requiredString(array $source, string $key): string
+    {
+        $value = $source[$key] ?? null;
 
-        $this->sandbox = isset($payload['sandbox']) && (bool) $payload['sandbox'];
+        if (!\is_string($value) || '' === $value) {
+            throw new InvalidArgumentException(\sprintf('The webhook payload key "%s" must be a non-empty string.', $key));
+        }
 
-        Assert::keyExists($payload, 'event_time');
-        Assert::numeric($payload['event_time']);
-        $timestamp = (int) $payload['event_time'];
+        return $value;
+    }
 
-        $this->eventTime = (new DateTimeImmutable())->setTimestamp($timestamp);
+    /**
+     * @param array<string, mixed> $source
+     */
+    private static function optionalString(array $source, string $key): string
+    {
+        $value = $source[$key] ?? null;
+
+        return \is_scalar($value) ? (string) $value : '';
+    }
+
+    /**
+     * @param array<string, mixed> $source
+     *
+     * @return array<string, mixed>
+     */
+    private static function requiredMap(array $source, string $key): array
+    {
+        $value = $source[$key] ?? null;
+
+        if (!\is_array($value)) {
+            throw new InvalidArgumentException(\sprintf('The webhook payload key "%s" must be an object.', $key));
+        }
+
+        return self::toMap($value);
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     */
+    private static function readEventTime(array $metadata): DateTimeImmutable
+    {
+        $value = $metadata['event_time'] ?? null;
+
+        if (\is_int($value) || (\is_string($value) && is_numeric($value))) {
+            return (new DateTimeImmutable())->setTimestamp((int) $value);
+        }
+
+        return new DateTimeImmutable();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function toMap(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $map = [];
+        foreach ($value as $key => $item) {
+            $map[(string) $key] = $item;
+        }
+
+        return $map;
     }
 }

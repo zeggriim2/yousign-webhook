@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\Messenger\ConsumeRemoteEventMessage;
+use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
 use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
 
@@ -39,7 +40,9 @@ final class YousignWebhookController
             /** @var array<string, mixed> $payload */
             $payload = $request->getPayload()->all();
 
-            $remoteEvent = $this->converter->convert($payload);
+            $retryCount = (int) $request->headers->get(YousignRemoteEvent::RETRY_HEADER, '0');
+
+            $remoteEvent = $this->converter->convert($payload, $retryCount);
 
             $this->messageBus->dispatch(new ConsumeRemoteEventMessage('yousign', $remoteEvent));
 
