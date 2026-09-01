@@ -17,6 +17,7 @@ use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
 use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
 use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
+use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
 
 /**
  * @author Lilian D'orazio <lilian.dorazio@hotmail.fr>
@@ -31,6 +32,7 @@ final class YousignWebhookController
         private readonly MessageBusInterface $messageBus,
         ?LoggerInterface $logger = null,
         private readonly ?YousignIpChecker $ipChecker = null,
+        private readonly ?YousignIdempotencyStore $idempotencyStore = null,
         private readonly string $type = 'yousign',
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -61,6 +63,16 @@ final class YousignWebhookController
             $this->logger->warning('Yousign webhook rejected: invalid payload.', ['exception' => $e]);
 
             return self::text('Invalid payload', Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        if (null !== $this->idempotencyStore && !$this->idempotencyStore->markAsHandled($remoteEvent->getId())) {
+            $this->logger->info('Yousign webhook skipped: event already handled.', [
+                'event_id' => $remoteEvent->getId(),
+                'event_name' => $remoteEvent->getName(),
+                'retry_count' => $remoteEvent->getRetryCount(),
+            ]);
+
+            return new Response('', Response::HTTP_ACCEPTED);
         }
 
         try {

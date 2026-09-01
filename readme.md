@@ -108,3 +108,23 @@ yousign_webhook:
 Vide par défaut (contrôle désactivé). N'activez l'option que si votre
 application est atteinte directement par Yousign, ou si vos reverse proxies sont
 déclarés dans `framework.trusted_proxies` — sinon l'IP cliente n'est pas fiable.
+
+## ♻️ Idempotence
+
+Un même événement peut être livré jusqu'à 9 fois (1 envoi + 8 retries) : son
+`event_id` reste identique d'une tentative à l'autre. Activez le
+dédoublonnage pour ne le traiter qu'une seule fois :
+
+```yaml
+# config/packages/yousign_webhook.yaml
+yousign_webhook:
+    secret: '%env(SECRET_YOUSIGN)%'
+    idempotency:
+        enabled: true
+        pool: cache.app   # n'importe quel pool PSR-6
+        ttl: 86400        # durée de mémorisation, en secondes
+```
+
+Les redélivrances déjà connues reçoivent un `202` sans être republiées sur le
+bus. Côté consumer, `$event->isRetry()` et `$event->getRetryCount()` restent
+disponibles pour tracer les tentatives.

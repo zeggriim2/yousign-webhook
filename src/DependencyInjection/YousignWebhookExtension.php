@@ -7,8 +7,10 @@ namespace Zeggriim\YousignWebhookBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Webmozart\Assert\Assert;
+use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
 
 final class YousignWebhookExtension extends Extension
 {
@@ -30,5 +32,18 @@ final class YousignWebhookExtension extends Extension
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        Assert::isArray($config['idempotency']);
+        $idempotency = $config['idempotency'];
+        Assert::boolean($idempotency['enabled']);
+        Assert::string($idempotency['pool']);
+        Assert::integer($idempotency['ttl']);
+
+        $store = $container->getDefinition(YousignIdempotencyStore::class);
+        $store->setArgument('$ttl', $idempotency['ttl']);
+
+        if ($idempotency['enabled']) {
+            $store->setArgument('$cache', new Reference($idempotency['pool']));
+        }
     }
 }

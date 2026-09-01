@@ -6,6 +6,7 @@ namespace Zeggriim\YousignWebhookBundle\Tests\Controller;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
@@ -17,6 +18,7 @@ use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
 use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
 use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
+use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
 
 final class WebhookControllerTest extends TestCase
 {
@@ -151,6 +153,23 @@ final class WebhookControllerTest extends TestCase
         $this->assertSame('Internal server error', $response->getContent());
     }
 
+    public function testARedeliveredEventIsOnlyDispatchedOnce(): void
+    {
+        $bus = $this->bus();
+        $bus->expects($this->once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+
+        $controller = $this->controller($bus, null, new YousignIdempotencyStore(new ArrayAdapter()));
+
+        $first = $controller->handle($this->signedRequest(self::payload()));
+
+        $retry = $this->signedRequest(self::payload());
+        $retry->headers->set(YousignRemoteEvent::RETRY_HEADER, '1');
+        $second = $controller->handle($retry);
+
+        $this->assertSame(Response::HTTP_ACCEPTED, $first->getStatusCode());
+        $this->assertSame(Response::HTTP_ACCEPTED, $second->getStatusCode());
+    }
+
     /**
      * @return MockObject&MessageBusInterface
      */
@@ -159,14 +178,18 @@ final class WebhookControllerTest extends TestCase
         return $this->createMock(MessageBusInterface::class);
     }
 
-    private function controller(MessageBusInterface $bus, ?YousignIpChecker $ipChecker = null): YousignWebhookController
-    {
+    private function controller(
+        MessageBusInterface $bus,
+        ?YousignIpChecker $ipChecker = null,
+        ?YousignIdempotencyStore $idempotencyStore = null,
+    ): YousignWebhookController {
         return new YousignWebhookController(
             new YousignConverter(),
             new YousignSignatureVerifier(self::SECRET),
             $bus,
             null,
             $ipChecker,
+            $idempotencyStore,
         );
     }
 
