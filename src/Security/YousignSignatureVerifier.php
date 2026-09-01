@@ -34,7 +34,16 @@ final class YousignSignatureVerifier
      */
     public function verify(string $rawBody, ?string $signature): bool
     {
-        if ('' === $this->secret || null === $signature) {
+        return self::isValid($rawBody, $signature, $this->secret);
+    }
+
+    /**
+     * Same check against an explicitly provided secret, for setups holding one
+     * secret per webhook subscription.
+     */
+    public static function isValid(string $rawBody, ?string $signature, string $secret): bool
+    {
+        if ('' === $secret || null === $signature) {
             return false;
         }
 
@@ -44,7 +53,7 @@ final class YousignSignatureVerifier
             return false;
         }
 
-        $expected = self::SIGNATURE_PREFIX.hash_hmac('sha256', $rawBody, $this->secret);
+        $expected = self::SIGNATURE_PREFIX.hash_hmac('sha256', $rawBody, $secret);
 
         // The computed value comes first: it is the known-good one.
         return hash_equals($expected, self::SIGNATURE_PREFIX.substr($signature, \strlen(self::SIGNATURE_PREFIX)));

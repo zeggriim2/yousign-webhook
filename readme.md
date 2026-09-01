@@ -19,36 +19,50 @@ return [
 ];
 ```
 
-## 🔀 Configuration des routes
+## 🔀 Configuration
 
-Ajouter la cléf secret fourni par Yousign dans l'admin :
-
-```yaml
-# config/packages/yousign_webhook.yaml
-yousign_webhook:
-    secret: "%env(SECRET_YOUSIGN)%"
-```
-
-
-Importez les routes exposées par le bundle dans votre fichier config/routes/yousign_webhook.yaml :
+Branchez le parser du bundle sur le composant [Webhook](https://symfony.com/doc/current/webhook.html)
+de Symfony, avec la clé secrète fournie par Yousign dans l'admin :
 
 ```yaml
-# config/yousign_webhook.yaml
-yousign_webhook:
-    resource: '@YousignWebhookBundle/Resources/config/routes.yaml'
+# config/packages/framework.yaml
+framework:
+    webhook:
+        routing:
+            yousign:
+                service: Zeggriim\YousignWebhookBundle\Webhook\YousignRequestParser
+                secret: '%env(YOUSIGN_WEBHOOK_SECRET)%'
 ```
 
-Cela exposera un endpoint (par défaut) POST accessible sur :
+Puis exposez la route du composant :
+
+```yaml
+# config/routes/webhook.yaml
+webhook:
+    resource: '@FrameworkBundle/Resources/config/routing/webhook.php'
+    prefix: /webhook
+```
+
+L'endpoint à déclarer côté Yousign est alors :
+
 ```bash
-/webhook/yousign
+POST /webhook/yousign
 ```
 
-Vous pouvez surcharger ce chemin en définissant un paramètre :
+Une entrée `routing` par abonnement Yousign : chacune a son propre secret et son
+propre nom de consumer.
+
+Enfin, désactivez le contrôleur historique du bundle, déprécié depuis la 0.3 :
+
 ```yaml
 # config/packages/yousign_webhook.yaml
-parameters:
-    yousign.webhook.endpoint: /votre/endpoint/personnalisé
+yousign_webhook:
+    legacy_controller: false
 ```
+
+> Les versions antérieures exposaient un contrôleur et une route maison
+> configurés via `yousign_webhook.secret` / `endpoint` / `type`. Voir
+> [UPGRADE.md](UPGRADE.md) pour la migration.
 
 ## Exemple cas d'utilisation
 

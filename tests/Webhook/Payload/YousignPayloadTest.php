@@ -9,29 +9,34 @@ use PHPUnit\Framework\TestCase;
 use Zeggriim\YousignWebhookBundle\Exception\InvalidArgumentException;
 use Zeggriim\YousignWebhookBundle\Webhook\Payload\YousignPayload;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class YousignPayloadTest extends TestCase
 {
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideSupportedShapes')]
+    #[DataProvider('provideItParsesBothPayloadShapesCases')]
     public function testItParsesBothPayloadShapes(array $payload): void
     {
         $parsed = new YousignPayload($payload);
 
-        $this->assertSame('b6c63685-c556-4a30-8fe9-b6f2b187d936', $parsed->eventId);
-        $this->assertSame('signature_request.activated', $parsed->eventName);
-        $this->assertSame('webhook-subscription-id', $parsed->subscriptionId);
-        $this->assertSame('My webhook', $parsed->subscriptionDescription);
-        $this->assertTrue($parsed->sandbox);
-        $this->assertSame(1670855889, $parsed->eventTime->getTimestamp());
-        $this->assertSame(['signature_request' => ['id' => 'xxx-xxx']], $parsed->data);
+        self::assertSame('b6c63685-c556-4a30-8fe9-b6f2b187d936', $parsed->eventId);
+        self::assertSame('signature_request.activated', $parsed->eventName);
+        self::assertSame('webhook-subscription-id', $parsed->subscriptionId);
+        self::assertSame('My webhook', $parsed->subscriptionDescription);
+        self::assertTrue($parsed->sandbox);
+        self::assertSame(1670855889, $parsed->eventTime->getTimestamp());
+        self::assertSame(['signature_request' => ['id' => 'xxx-xxx']], $parsed->data);
     }
 
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideSupportedShapes(): iterable
+    public static function provideItParsesBothPayloadShapesCases(): iterable
     {
         $metadata = [
             'event_id' => 'b6c63685-c556-4a30-8fe9-b6f2b187d936',
@@ -59,12 +64,12 @@ final class YousignPayloadTest extends TestCase
             'another_unknown_root_key' => ['whatever'],
         ]);
 
-        $this->assertSame('event-id', $parsed->eventId);
-        $this->assertSame('some.brand.new.event', $parsed->eventName);
-        $this->assertSame('', $parsed->subscriptionId);
-        $this->assertSame('', $parsed->subscriptionDescription);
-        $this->assertFalse($parsed->sandbox);
-        $this->assertSame([], $parsed->data);
+        self::assertSame('event-id', $parsed->eventId);
+        self::assertSame('some.brand.new.event', $parsed->eventName);
+        self::assertSame('', $parsed->subscriptionId);
+        self::assertSame('', $parsed->subscriptionDescription);
+        self::assertFalse($parsed->sandbox);
+        self::assertSame([], $parsed->data);
     }
 
     public function testEventTimeFallsBackToNowWhenUnusable(): void
@@ -76,13 +81,13 @@ final class YousignPayloadTest extends TestCase
             'data' => [],
         ]);
 
-        $this->assertGreaterThanOrEqual($before, $parsed->eventTime->getTimestamp());
+        self::assertGreaterThanOrEqual($before, $parsed->eventTime->getTimestamp());
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('provideInvalidPayloads')]
+    #[DataProvider('provideItRejectsPayloadsWithoutMandatoryKeysCases')]
     public function testItRejectsPayloadsWithoutMandatoryKeys(array $payload): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -93,7 +98,7 @@ final class YousignPayloadTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function provideInvalidPayloads(): iterable
+    public static function provideItRejectsPayloadsWithoutMandatoryKeysCases(): iterable
     {
         yield 'empty payload' => [[]];
         yield 'missing event_name' => [['metadata' => ['event_id' => 'id'], 'data' => []]];

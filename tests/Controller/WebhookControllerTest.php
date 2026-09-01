@@ -20,6 +20,11 @@ use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignIdempotencyStore;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class WebhookControllerTest extends TestCase
 {
     private const SECRET = 'keySecret';
@@ -27,77 +32,77 @@ final class WebhookControllerTest extends TestCase
     public function testSignatureUnauthorize(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->never())->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $response = $this->controller($bus)->handle(new Request());
 
-        $this->assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
-        $this->assertSame('Invalid signature', $response->getContent());
+        self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        self::assertSame('Invalid signature', $response->getContent());
     }
 
     public function testEmptyPayload(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->never())->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $response = $this->controller($bus)->handle($this->signedRequest(''));
 
-        $this->assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
-        $this->assertSame('Invalid payload', $response->getContent());
+        self::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
+        self::assertSame('Invalid payload', $response->getContent());
     }
 
     public function testMalformedJsonIsRejectedAsInvalidPayload(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->never())->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $response = $this->controller($bus)->handle($this->signedRequest('{"metadata":'));
 
-        $this->assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
-        $this->assertSame('Invalid payload', $response->getContent());
+        self::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
+        self::assertSame('Invalid payload', $response->getContent());
     }
 
     public function testJsonScalarBodyIsRejectedAsInvalidPayload(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->never())->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $response = $this->controller($bus)->handle($this->signedRequest('"a string"'));
 
-        $this->assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
     }
 
     public function testRequestFromAnUnknownIpIsForbidden(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->never())->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $controller = $this->controller($bus, new YousignIpChecker(['57.130.41.144/28']));
         $response = $controller->handle($this->signedRequest(self::payload()));
 
-        $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-        $this->assertSame('Forbidden', $response->getContent());
+        self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        self::assertSame('Forbidden', $response->getContent());
     }
 
     public function testRequestFromAnAllowedIpIsAccepted(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+        $bus->expects(self::once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
 
         $request = $this->signedRequest(self::payload());
         $request->server->set('REMOTE_ADDR', '57.130.41.150');
 
         $controller = $this->controller($bus, new YousignIpChecker(YousignIpChecker::DOCUMENTED_RANGES));
 
-        $this->assertSame(Response::HTTP_ACCEPTED, $controller->handle($request)->getStatusCode());
+        self::assertSame(Response::HTTP_ACCEPTED, $controller->handle($request)->getStatusCode());
     }
 
     public function testParserAcceptsPayloadAndReturnsSingleEvent(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->once())
+        $bus->expects(self::once())
             ->method('dispatch')
-            ->with($this->callback(function (mixed $message): bool {
+            ->with(self::callback(function (mixed $message): bool {
                 $this->assertInstanceOf(ConsumeRemoteEventMessage::class, $message);
                 $this->assertSame('yousign', $message->getType());
 
@@ -110,21 +115,22 @@ final class WebhookControllerTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new \stdClass()));
+            ->willReturn(new Envelope(new \stdClass()))
+        ;
 
         $request = $this->signedRequest(self::payload());
         $request->headers->set(YousignRemoteEvent::RETRY_HEADER, '3');
 
         $response = $this->controller($bus)->handle($request);
 
-        $this->assertSame(Response::HTTP_ACCEPTED, $response->getStatusCode());
-        $this->assertSame('', $response->getContent());
+        self::assertSame(Response::HTTP_ACCEPTED, $response->getStatusCode());
+        self::assertSame('', $response->getContent());
     }
 
     public function testLegacyFlatPayloadIsStillAccepted(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+        $bus->expects(self::once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
 
         $payload = json_encode([
             'event_id' => 'b6c63685-c556-4a30-8fe9-b6f2b187d936',
@@ -134,9 +140,9 @@ final class WebhookControllerTest extends TestCase
             'subscription_description' => 'My webhook for signed documents',
             'sandbox' => false,
             'data' => ['signature_request' => ['id' => 'xxx-xxx', 'status' => 'approval']],
-        ], \JSON_THROW_ON_ERROR);
+        ], JSON_THROW_ON_ERROR);
 
-        $this->assertSame(
+        self::assertSame(
             Response::HTTP_ACCEPTED,
             $this->controller($bus)->handle($this->signedRequest($payload))->getStatusCode(),
         );
@@ -145,18 +151,18 @@ final class WebhookControllerTest extends TestCase
     public function testDispatchFailureReturnsAServerError(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->once())->method('dispatch')->willThrowException(new TransportException('broker down'));
+        $bus->expects(self::once())->method('dispatch')->willThrowException(new TransportException('broker down'));
 
         $response = $this->controller($bus)->handle($this->signedRequest(self::payload()));
 
-        $this->assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
-        $this->assertSame('Internal server error', $response->getContent());
+        self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        self::assertSame('Internal server error', $response->getContent());
     }
 
     public function testARedeliveredEventIsOnlyDispatchedOnce(): void
     {
         $bus = $this->bus();
-        $bus->expects($this->once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
+        $bus->expects(self::once())->method('dispatch')->willReturn(new Envelope(new \stdClass()));
 
         $controller = $this->controller($bus, null, new YousignIdempotencyStore(new ArrayAdapter()));
 
@@ -166,8 +172,8 @@ final class WebhookControllerTest extends TestCase
         $retry->headers->set(YousignRemoteEvent::RETRY_HEADER, '1');
         $second = $controller->handle($retry);
 
-        $this->assertSame(Response::HTTP_ACCEPTED, $first->getStatusCode());
-        $this->assertSame(Response::HTTP_ACCEPTED, $second->getStatusCode());
+        self::assertSame(Response::HTTP_ACCEPTED, $first->getStatusCode());
+        self::assertSame(Response::HTTP_ACCEPTED, $second->getStatusCode());
     }
 
     /**
@@ -217,6 +223,6 @@ final class WebhookControllerTest extends TestCase
                 'sandbox' => false,
             ],
             'data' => ['signature_request' => ['id' => 'xxx-xxx', 'status' => 'ongoing']],
-        ], \JSON_THROW_ON_ERROR);
+        ], JSON_THROW_ON_ERROR);
     }
 }
