@@ -66,6 +66,9 @@ La documentation YouTrust v3 décrit aujourd'hui :
 F2 : la documentation est livrée et le squelette de recette est dans
 `docs/flex-recipe/`, il reste à le soumettre à `symfony/recipes-contrib`.
 
+La publication de la `1.0.0` (renommage du dépôt, nouvelle entrée Packagist,
+abandon de l'ancienne) est décrite dans [docs/RELEASE.md](docs/RELEASE.md).
+
 ## Roadmap
 
 | Version  | Contenu                                                                  | Épics   |

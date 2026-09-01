@@ -98,13 +98,13 @@ class YouTrustWebhookBundle extends AbstractBundle
         }
 
         if ('' === $config['secret']) {
-            throw new InvalidConfigurationException('The "yousign_webhook.secret" option is required as long as "yousign_webhook.legacy_controller" is enabled.');
+            throw new InvalidConfigurationException('The "secret" option is required as long as "legacy_controller" is enabled.');
         }
 
         trigger_deprecation(
             'zeggriim/yousign-webhook-bundle',
-            '0.3',
-            'The built-in Yousign webhook controller and route are deprecated and will be removed in 1.0. Configure "framework.webhook.routing" with "%s" instead, then set "yousign_webhook.legacy_controller" to false.',
+            '1.0',
+            'The built-in webhook controller and route are deprecated and will be removed in 2.0. Configure "framework.webhook.routing" with "%s" instead, then set "youtrust_webhook.legacy_controller" to false.',
             'Zeggriim\YouTrustWebhookBundle\Webhook\YouTrustRequestParser',
         );
 

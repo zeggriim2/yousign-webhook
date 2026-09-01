@@ -1,13 +1,66 @@
 # Guide de migration
 
-## 0.2 → 0.3
+## 0.1 → 1.0
+
+### Yousign devient YouTrust
+
+Le package s'appelle désormais **`zeggriim/youtrust-webhook-bundle`** et le
+namespace est `Zeggriim\YouTrustWebhookBundle\`.
+
+L'ancien package `zeggriim/yousign-webhook-bundle` est marqué *abandoned* sur
+Packagist et reste figé en `v0.1.2`. Pour passer en `1.0`, changez la
+dépendance :
+
+```bash
+composer remove zeggriim/yousign-webhook-bundle
+composer require zeggriim/youtrust-webhook-bundle
+```
+
+L'ancien nom est déclaré en `replace` : si un autre paquet en dépend de façon
+transitive, la résolution reste satisfaite sans conflit.
+
+| Avant                                    | Après                                       |
+| ---------------------------------------- | ------------------------------------------- |
+| `YousignWebhookBundle`                   | `YouTrustWebhookBundle`                     |
+| `Webhook\YousignRequestParser`           | `Webhook\YouTrustRequestParser`             |
+| `Webhook\YousignConverter`               | `Webhook\YouTrustConverter`                 |
+| `Webhook\YousignIdempotencyStore`        | `Webhook\YouTrustIdempotencyStore`          |
+| `Webhook\Payload\YousignPayload`         | `Webhook\Payload\YouTrustPayload`           |
+| `RemoteEvent\YousignRemoteEvent`         | `RemoteEvent\YouTrustRemoteEvent`           |
+| `RemoteEvent\Consumer\AbstractYousignConsumer` | `RemoteEvent\Consumer\AbstractYouTrustConsumer` |
+| `Security\YousignSignatureVerifier`      | `Security\YouTrustSignatureVerifier`        |
+| `Security\YousignIpChecker`              | `Security\YouTrustIpChecker`                |
+| `Enum\YousignEvent`                      | `Enum\YouTrustEvent`                        |
+| `Controller\YousignWebhookController`    | `Controller\YouTrustWebhookController`      |
+| clé de configuration `yousign_webhook`   | clé de configuration `youtrust_webhook`     |
+
+Les anciens noms restent utilisables : ils sont créés à la volée en alias, avec
+une dépréciation à la première utilisation, et seront supprimés en `2.0`.
+L'ancienne classe de bundle `Zeggriim\YousignWebhookBundle\YousignWebhookBundle`
+existe toujours et conserve la clé de configuration `yousign_webhook`, ce qui
+permet de mettre à jour sans rien changer, puis de migrer.
+
+Ce qui **ne change pas** : les en-têtes HTTP restent `X-Yousign-Signature-256`
+et `X-Yousign-Retry` (c'est le protocole envoyé par YouTrust), et la clé de
+routing `framework.webhook.routing.yousign` reste libre — elle détermine
+simplement l'URL et le nom du consumer.
+
+Migration recommandée :
+
+1. Remplacer `Zeggriim\YousignWebhookBundle\YousignWebhookBundle::class` par
+   `Zeggriim\YouTrustWebhookBundle\YouTrustWebhookBundle::class` dans
+   `config/bundles.php`.
+2. Renommer la clé `yousign_webhook` en `youtrust_webhook`.
+3. Remplacer les imports `Zeggriim\YousignWebhookBundle\…` par
+   `Zeggriim\YouTrustWebhookBundle\…` (les dépréciations affichées en `dev`
+   listent exactement les classes concernées).
 
 ### Le contrôleur maison est déprécié au profit du composant `symfony/webhook`
 
 Le bundle expose désormais un `YouTrustRequestParser` branché sur le composant
 [Webhook](https://symfony.com/doc/current/webhook.html) de Symfony, comme les
 bridges officiels. Le contrôleur et la route fournis par le bundle restent
-disponibles en `0.3` mais seront supprimés en `1.0`.
+disponibles en `1.0` mais seront supprimés en `2.0`.
 
 **Avant**
 
@@ -52,6 +105,9 @@ consumers `#[AsRemoteEventConsumer('yousign')]` sont inchangés.
 Tant que `legacy_controller` vaut `true`, une dépréciation est déclenchée au
 démarrage du conteneur et l'option `secret` reste obligatoire.
 
+> Il n'y a pas de version `0.2` ni `0.3` : la ligne `0.x` s'arrête à `v0.1.2`,
+> tout ce qui suit est publié directement en `1.0.0`.
+
 ### Plusieurs abonnements
 
 Chaque abonnement Yousign peut avoir son propre secret :
@@ -71,56 +127,12 @@ framework:
 Les événements sont alors consommés par `#[AsRemoteEventConsumer('yousign_signature')]`
 et `#[AsRemoteEventConsumer('yousign_verification')]`.
 
-### Autres changements
+### Autres changements de la 1.0
 
-- `Zeggriim\YouTrustWebhookBundle\DependencyInjection\Configuration` et
-  `YousignWebhookExtension` ont été supprimés : la configuration est portée par
-  `YouTrustWebhookBundle` (`AbstractBundle`). Ces classes n'étaient pas destinées
-  à être utilisées directement.
+- `DependencyInjection\Configuration` et `YousignWebhookExtension` ont été
+  supprimés : la configuration est portée par le bundle (`AbstractBundle`).
+  Ces classes n'étaient pas destinées à être utilisées directement.
 - La dépendance `webmozart/assert` a été retirée.
 - L'option `secret` a une valeur par défaut vide : elle n'est requise que si le
   contrôleur déprécié est actif.
-
-## 0.3 → 1.0
-
-### Yousign devient YouTrust
-
-Le package s'appelle désormais `zeggriim/youtrust-webhook-bundle` (l'ancien nom
-est déclaré en `replace`, `composer require` continue donc de fonctionner) et le
-namespace est `Zeggriim\YouTrustWebhookBundle\`.
-
-| Avant                                    | Après                                       |
-| ---------------------------------------- | ------------------------------------------- |
-| `YousignWebhookBundle`                   | `YouTrustWebhookBundle`                     |
-| `Webhook\YousignRequestParser`           | `Webhook\YouTrustRequestParser`             |
-| `Webhook\YousignConverter`               | `Webhook\YouTrustConverter`                 |
-| `Webhook\YousignIdempotencyStore`        | `Webhook\YouTrustIdempotencyStore`          |
-| `Webhook\Payload\YousignPayload`         | `Webhook\Payload\YouTrustPayload`           |
-| `RemoteEvent\YousignRemoteEvent`         | `RemoteEvent\YouTrustRemoteEvent`           |
-| `RemoteEvent\Consumer\AbstractYousignConsumer` | `RemoteEvent\Consumer\AbstractYouTrustConsumer` |
-| `Security\YousignSignatureVerifier`      | `Security\YouTrustSignatureVerifier`        |
-| `Security\YousignIpChecker`              | `Security\YouTrustIpChecker`                |
-| `Enum\YousignEvent`                      | `Enum\YouTrustEvent`                        |
-| `Controller\YousignWebhookController`    | `Controller\YouTrustWebhookController`      |
-| clé de configuration `yousign_webhook`   | clé de configuration `youtrust_webhook`     |
-
-Les anciens noms restent utilisables : ils sont créés à la volée en alias, avec
-une dépréciation à la première utilisation, et seront supprimés en `2.0`.
-L'ancienne classe de bundle `Zeggriim\YousignWebhookBundle\YousignWebhookBundle`
-existe toujours et conserve la clé de configuration `yousign_webhook`, ce qui
-permet de mettre à jour sans rien changer, puis de migrer.
-
-Ce qui **ne change pas** : les en-têtes HTTP restent `X-Yousign-Signature-256`
-et `X-Yousign-Retry` (c'est le protocole envoyé par YouTrust), et la clé de
-routing `framework.webhook.routing.yousign` reste libre — elle détermine
-simplement l'URL et le nom du consumer.
-
-Migration recommandée :
-
-1. Remplacer `Zeggriim\YousignWebhookBundle\YousignWebhookBundle::class` par
-   `Zeggriim\YouTrustWebhookBundle\YouTrustWebhookBundle::class` dans
-   `config/bundles.php`.
-2. Renommer la clé `yousign_webhook` en `youtrust_webhook`.
-3. Remplacer les imports `Zeggriim\YousignWebhookBundle\…` par
-   `Zeggriim\YouTrustWebhookBundle\…` (les dépréciations affichées en `dev`
-   listent exactement les classes concernées).
+- Un corps de requête JSON invalide répond `406` au lieu de `500`.

@@ -13,7 +13,7 @@
         "  * Renseignez <comment>YOUTRUST_WEBHOOK_SECRET</comment> avec la clé de la subscription",
         "  * Créez un consumer avec <comment>#[AsRemoteEventConsumer('yousign')]</comment>",
         "",
-        "  Documentation : <comment>https://github.com/zeggriim/yousign-webhook</comment>"
+        "  Documentation : <comment>https://github.com/zeggriim/youtrust-webhook</comment>"
     ],
     "aliases": ["youtrust-webhook", "youtrust"]
 }

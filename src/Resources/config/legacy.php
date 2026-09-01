@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * Deprecated since 0.3, removed in 1.0: configure framework.webhook.routing
+ * Deprecated since 1.0, removed in 2.0: configure framework.webhook.routing
  * with the YouTrustRequestParser instead of this controller.
  */
 

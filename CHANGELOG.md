@@ -5,7 +5,11 @@ Toutes les évolutions notables de ce projet sont documentées dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le
 projet applique le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [1.0.0] - non publiée
+
+Première version stable. La ligne `0.x` s'arrête à `v0.1.2` et le package est
+renommé : voir [docs/RELEASE.md](docs/RELEASE.md) pour la procédure de
+publication et [UPGRADE.md](UPGRADE.md) pour la migration.
 
 ### Ajouté
 

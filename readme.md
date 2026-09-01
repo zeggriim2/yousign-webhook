@@ -1,6 +1,6 @@
 # YouTrustWebhookBundle
 
-[![CI](https://github.com/zeggriim/yousign-webhook/actions/workflows/ci.yaml/badge.svg)](https://github.com/zeggriim/yousign-webhook/actions/workflows/ci.yaml)
+[![CI](https://github.com/zeggriim/youtrust-webhook/actions/workflows/ci.yaml/badge.svg)](https://github.com/zeggriim/youtrust-webhook/actions/workflows/ci.yaml)
 
 Bridge Symfony pour recevoir les webhooks **YouTrust** (ex-Yousign) via les
 composants [Webhook](https://symfony.com/doc/current/webhook.html) et
@@ -18,6 +18,10 @@ composants [Webhook](https://symfony.com/doc/current/webhook.html) et
 ```bash
 composer require zeggriim/youtrust-webhook-bundle
 ```
+
+> Ce package s'appelait `zeggriim/yousign-webhook-bundle` jusqu'à la `v0.1.2`.
+> Cette entrée Packagist est abandonnée et figée : voir [UPGRADE.md](UPGRADE.md)
+> pour passer en `1.0`.
 
 Sans Symfony Flex, déclarez le bundle :
 
@@ -232,6 +236,7 @@ curl -X POST http://localhost:8000/webhook/yousign \
 
 - Yousign → YouTrust et abandon du contrôleur maison : voir [UPGRADE.md](UPGRADE.md).
 - Évolutions prévues : voir [BACKLOG.md](BACKLOG.md).
+- Procédure de publication : voir [docs/RELEASE.md](docs/RELEASE.md).
 
 ## 🛠️ Développement
 
