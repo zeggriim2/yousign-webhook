@@ -15,7 +15,7 @@ test: ## Lance les tests PHPUnit
 	$(DC) vendor/bin/phpunit
 
 phpstan: ## Lance l'analyse statique PHPStan
-	$(DC) vendor/bin/phpstan analyse
+	$(DC) vendor/bin/phpstan analyse --memory-limit=512M
 
 cs: ## Vérifie le style de code (dry-run)
 	$(DC) vendor/bin/php-cs-fixer fix --dry-run --diff
