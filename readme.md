@@ -1,6 +1,6 @@
 # YouTrustWebhookBundle
 
-[![CI](https://github.com/zeggriim/youtrust-webhook/actions/workflows/ci.yaml/badge.svg)](https://github.com/zeggriim/youtrust-webhook/actions/workflows/ci.yaml)
+[![CI](https://github.com/zeggriim2/youtrust-webhook/actions/workflows/ci.yaml/badge.svg)](https://github.com/zeggriim2/youtrust-webhook/actions/workflows/ci.yaml)
 
 Bridge Symfony pour recevoir les webhooks **YouTrust** (ex-Yousign) via les
 composants [Webhook](https://symfony.com/doc/current/webhook.html) et

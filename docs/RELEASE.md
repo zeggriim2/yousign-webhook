@@ -19,7 +19,7 @@ laisser dans le noir.
    existants continuent de fonctionner.
 
 3. **Soumettre le nouveau package** sur <https://packagist.org/packages/submit>
-   avec la nouvelle URL `https://github.com/zeggriim/youtrust-webhook`.
+   avec la nouvelle URL `https://github.com/zeggriim2/youtrust-webhook`.
    Vérifier que le hook GitHub est bien actif (Settings → Webhooks).
 
 4. **Taguer la 1.0.0** :

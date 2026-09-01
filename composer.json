@@ -64,5 +64,10 @@
         "branch-alias": {
             "dev-main": "1.0-dev"
         }
+    },
+    "homepage": "https://github.com/zeggriim2/youtrust-webhook",
+    "support": {
+        "issues": "https://github.com/zeggriim2/youtrust-webhook/issues",
+        "source": "https://github.com/zeggriim2/youtrust-webhook"
     }
 }
