@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Zeggriim\YousignWebhookBundle\Controller;
 
-use Exception;
+use JsonException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RemoteEvent\Exception\ParseException;
 use Symfony\Component\RemoteEvent\Messenger\ConsumeRemoteEventMessage;
+use Throwable;
 use Zeggriim\YousignWebhookBundle\RemoteEvent\YousignRemoteEvent;
+use Zeggriim\YousignWebhookBundle\Security\YousignIpChecker;
 use Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier;
 use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
 
@@ -19,46 +23,84 @@ use Zeggriim\YousignWebhookBundle\Webhook\YousignConverter;
  */
 final class YousignWebhookController
 {
+    private readonly LoggerInterface $logger;
+
     public function __construct(
         private readonly YousignConverter $converter,
         private readonly YousignSignatureVerifier $signatureVerifier,
         private readonly MessageBusInterface $messageBus,
+        ?LoggerInterface $logger = null,
+        private readonly ?YousignIpChecker $ipChecker = null,
+        private readonly string $type = 'yousign',
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function handle(Request $request): Response
     {
-        try {
-            if (!$this->signatureVerifier->verifySignature($request)) {
-                return new Response(
-                    'Invalid signature',
-                    Response::HTTP_UNAUTHORIZED,
-                    ['content-type' => 'text/plain']
-                );
-            }
+        if (null !== $this->ipChecker && !$this->ipChecker->isAllowed($request)) {
+            $this->logger->warning('Yousign webhook rejected: client IP is not allowed.', [
+                'client_ip' => $request->getClientIp(),
+            ]);
 
-            /** @var array<string, mixed> $payload */
-            $payload = $request->getPayload()->all();
-
-            $retryCount = (int) $request->headers->get(YousignRemoteEvent::RETRY_HEADER, '0');
-
-            $remoteEvent = $this->converter->convert($payload, $retryCount);
-
-            $this->messageBus->dispatch(new ConsumeRemoteEventMessage('yousign', $remoteEvent));
-
-            return new Response('', Response::HTTP_ACCEPTED);
-        } catch (ParseException $e) {
-            return new Response(
-                'Invalid payload',
-                Response::HTTP_NOT_ACCEPTABLE,
-                ['content-type' => 'text/plain']
-            );
-        } catch (Exception $e) {
-            return new Response(
-                'Internal server error',
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                ['content-type' => 'text/plain']
-            );
+            return self::text('Forbidden', Response::HTTP_FORBIDDEN);
         }
+
+        if (!$this->signatureVerifier->verifySignature($request)) {
+            $this->logger->warning('Yousign webhook rejected: invalid signature.');
+
+            return self::text('Invalid signature', Response::HTTP_UNAUTHORIZED);
+        }
+
+        try {
+            $remoteEvent = $this->converter->convert(
+                $this->decode($request->getContent()),
+                (int) $request->headers->get(YousignRemoteEvent::RETRY_HEADER, '0'),
+            );
+        } catch (ParseException|JsonException $e) {
+            $this->logger->warning('Yousign webhook rejected: invalid payload.', ['exception' => $e]);
+
+            return self::text('Invalid payload', Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        try {
+            $this->messageBus->dispatch(new ConsumeRemoteEventMessage($this->type, $remoteEvent));
+        } catch (Throwable $e) {
+            $this->logger->error('Yousign webhook could not be dispatched.', [
+                'exception' => $e,
+                'event_id' => $remoteEvent->getId(),
+                'event_name' => $remoteEvent->getName(),
+            ]);
+
+            return self::text('Internal server error', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new Response('', Response::HTTP_ACCEPTED);
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws JsonException when the body is not a JSON object
+     */
+    private function decode(string $content): array
+    {
+        $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+        if (!\is_array($decoded)) {
+            throw new JsonException('The webhook body must be a JSON object.');
+        }
+
+        $payload = [];
+        foreach ($decoded as $key => $value) {
+            $payload[(string) $key] = $value;
+        }
+
+        return $payload;
+    }
+
+    private static function text(string $message, int $status): Response
+    {
+        return new Response($message, $status, ['content-type' => 'text/plain']);
     }
 }

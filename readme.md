@@ -69,3 +69,42 @@ final class YousignWebhookConsumer implements ConsumerInterface
     }
 }
 ```
+## ⏱️ Répondre en moins d'une seconde
+
+Yousign coupe la connexion au bout d'**1 seconde** lors de la première tentative
+(10 secondes lors des retries) et considère la livraison en échec, même si votre
+application finit par répondre `2xx`. Un traitement métier synchrone provoque
+donc jusqu'à 8 redélivrances du même événement.
+
+Routez `ConsumeRemoteEventMessage` vers un transport asynchrone :
+
+```yaml
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+        routing:
+            Symfony\Component\RemoteEvent\Messenger\ConsumeRemoteEventMessage: async
+```
+
+Vos consumers restent identiques : ils sont simplement exécutés par
+`messenger:consume async` au lieu de l'être pendant la requête HTTP.
+
+## 🔒 Restreindre les IP appelantes (optionnel)
+
+```yaml
+# config/packages/yousign_webhook.yaml
+yousign_webhook:
+    secret: '%env(SECRET_YOUSIGN)%'
+    allowed_ips:
+        - '57.130.41.144/28'
+        - '51.38.96.112/28'
+        - '5.39.7.128/28'
+        - '52.143.162.31'
+        - '51.103.81.166'
+```
+
+Vide par défaut (contrôle désactivé). N'activez l'option que si votre
+application est atteinte directement par Yousign, ou si vos reverse proxies sont
+déclarés dans `framework.trusted_proxies` — sinon l'IP cliente n'est pas fiable.

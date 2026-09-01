@@ -5,11 +5,20 @@ services:
 
     Zeggriim\YousignWebhookBundle\:
         resource: '../../*'
-        exclude: '../../{DependencyInjection,Resources,Tests}'
+        exclude: '../../{DependencyInjection,Exception,RemoteEvent,Resources,Tests}'
 
     Zeggriim\YousignWebhookBundle\Security\YousignSignatureVerifier:
         arguments:
             $secret: '%yousign.webhook.secret%'
 
+    Zeggriim\YousignWebhookBundle\Security\YousignIpChecker:
+        arguments:
+            $allowedIps: '%yousign.webhook.allowed_ips%'
+
     Zeggriim\YousignWebhookBundle\Controller\YousignWebhookController:
-        tags: ['controller.service_arguments']
+        arguments:
+            $logger: '@?logger'
+            $type: '%yousign.webhook.type%'
+        tags:
+            - 'controller.service_arguments'
+            - { name: monolog.logger, channel: yousign }

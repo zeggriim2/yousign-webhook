@@ -26,7 +26,12 @@ final class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('type')
                     ->defaultValue('yousign')
-                    ->info('Webhook type')
+                    ->info('RemoteEvent consumer name the events are dispatched to')
+                ->end()
+                ->arrayNode('allowed_ips')
+                    ->info('Optional allowlist of Yousign delivery IPs or CIDR ranges. Empty means disabled.')
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                    ->defaultValue([])
                 ->end()
             ->end();
 
